@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>LeetCode-Bot - 登入帳號</title>
+    <meta property="og:title" content="LeetCode-Bot" />
+    <meta property="og:description" content="LeetCode-Bot - 登入帳號" />
+    <meta property="og:type" content="product" />
+    <meta property="og:url" content="https://mcbowbow.site/" />
+    <meta property="og:image" content="https://assets.leetcode.com/static_assets/public/images/LeetCode_Sharing.png" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="shortcut icon" href="https://assets.leetcode.com/static_assets/public/icons/favicon-192x192.png">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.13.0/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="../static/css/login.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <img class="logo-image"
+                src="https://assets.leetcode.com/static_assets/public/webpack_bundles/images/logo-dark.e99485d9b.svg" />
+        </div>
+        <h2>
+            登入帳號
+        </h2>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">LEETCODE_SESSION</span>
+            <input type="text" class="form-control" placeholder="LEETCODE_SESSION" aria-label="LEETCODE_SESSION"
+                id="LEETCODE_SESSION" required>
+        </div>
+        <br>
+        <div class="login-button">
+            <button class="btn btn-primary btn-lg" onclick="Login()" style="width: 40%;">登入</button>
+        </div>
+    </div>
+
+    <!-- Jquery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <!-- Sweet Alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.13.0/dist/sweetalert2.all.min.js"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="../static/js/login.js"></script>
+</body>
+
+</html>
