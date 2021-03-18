@@ -1,12 +1,10 @@
-from threading import current_thread
-
 import requests
 
-QUESTION_1 = ""  # LeetCode 第一題
-QUESTION_2 = ""  # LeetCode 第二題
-END_DATE = "2021/03/18"  # 截止日期
-LAST_WEEK = "2021/03/17"  # 上次截止日期
-TOKEN = ""
+QUESTION_1: str = ""  # LeetCode 第一題
+QUESTION_2: str = ""  # LeetCode 第二題
+END_DATE: str = "2021/03/18"  # 截止日期
+LAST_WEEK: str = "2021/03/17"  # 上次截止日期
+TOKEN: str = ""
 
 
 def set_new_question():
@@ -16,7 +14,7 @@ def set_new_question():
         "last_week": LAST_WEEK,
         "token": TOKEN,
     }
-    response = requests.post("https://leetcode-bot.ml/api/question/set", data=data)
+    response = requests.post("http://leetcode-bot.ml/api/question/set", json=data).text
     print(response)
 
 
