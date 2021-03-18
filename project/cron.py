@@ -144,7 +144,7 @@ def check_last_week(user_id: str) -> int:
     user_data = question_data["history"][last_week]["result"][user_id]["result"]
     if user_data["debit"] > 0:
         work_status = check_work_status(
-            user_id=user_id, required_question=last_week_questions
+            user_id=user_id, required_question=last_week_questions, first_week=False
         )
         debit = (user_data["debit"] - work_status["debit"]) / 2
         question_data["history"][last_week]["result"][user_id]["result"] = work_status

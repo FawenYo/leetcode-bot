@@ -45,7 +45,9 @@ def current_leetcode_status(LEETCODE_SESSION: str) -> dict:
     return user_stauts
 
 
-def check_work_status(user_id: str, required_question: List[str]) -> dict:
+def check_work_status(
+    user_id: str, required_question: List[str], first_week=True
+) -> dict:
     new_ac = []
     user_data = config.db.user.find_one({"user_id": user_id})
     old_status = user_data["LeetCode"]
@@ -73,7 +75,10 @@ def check_work_status(user_id: str, required_question: List[str]) -> dict:
             "debit": 0,
         }
     else:
-        debit = 50 * len(required_question)
+        if first_week:
+            debit = 10 * len(required_question)
+        else:
+            debit = 40 * len(required_question)
         return {
             "complete": False,
             "undo": required_question,
