@@ -14,7 +14,7 @@ line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
 def handle_message(event):
-    """事件 - 訊息
+    """Event - User message
 
     Args:
         event (LINE Event Object): Refer to https://developers.line.biz/en/reference/messaging-api/#message-event

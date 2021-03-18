@@ -14,10 +14,10 @@ line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
 def complete_result(data: List[Tuple[int, List[str]]]) -> FlexSendMessage:
-    """本週AC狀況
+    """Week Accepted result
 
     Args:
-        data (List[Tuple[int, List[str]]]): AC 資料
+        data (List[Tuple[int, List[str]]]): Accepted data.
 
     Returns:
         FlexSendMessage: 本週AC狀況
@@ -78,10 +78,10 @@ def complete_result(data: List[Tuple[int, List[str]]]) -> FlexSendMessage:
 
 
 def undo_result(data: List[dict]) -> FlexSendMessage:
-    """本週未作答狀況
+    """Week undo result
 
     Args:
-        data (List[dict]): 未作答資料
+        data (List[dict]): Undo data.
 
     Returns:
         FlexSendMessage: 本週未作答狀況
@@ -109,13 +109,13 @@ def undo_result(data: List[dict]) -> FlexSendMessage:
 
 
 def count_all_users(data: List[Tuple[int, List[str]]]) -> int:
-    """計算使用者總數
+    """Count all users
 
     Args:
-        data (List[Tuple[int, List[str]]]): AC 資料
+        data (List[Tuple[int, List[str]]]): Accepted data.
 
     Returns:
-        int: 使用者總數
+        int: Total users count.
     """
     user_count = 0
     for each in data:

@@ -1,5 +1,5 @@
 import sys
-from typing import List
+from typing import Dict, List
 
 import requests
 
@@ -7,8 +7,33 @@ sys.path.append(".")
 import config
 
 
-def status_crawler(LEETCODE_SESSION: str, question_name: str):
-    solved = False
+def find_question(question_name: str) -> bool:
+    """Check if LeetCode question exist.
+
+    Args:
+        question_name (str): LeetCode question name.
+
+    Returns:
+        bool: Exist or not
+    """
+    response = requests.get("https://leetcode.com/api/problems/all/").json()
+    for question in response["stat_status_pairs"]:
+        question_title = question["stat"]["question__title"]
+        if question_title == question_name:
+            return True
+    return False
+
+
+def status_crawler(LEETCODE_SESSION: str, question_name: str) -> bool:
+    """Check if question solved
+
+    Args:
+        LEETCODE_SESSION (str): User's LeetCode session.
+        question_name (str): LeetCode question name.
+
+    Returns:
+        bool: Solved or not.
+    """
     cookies = {"LEETCODE_SESSION": LEETCODE_SESSION}
     response = requests.get(
         "https://leetcode.com/api/problems/all/", cookies=cookies
@@ -17,18 +42,29 @@ def status_crawler(LEETCODE_SESSION: str, question_name: str):
         question_title = question["stat"]["question__title"]
         if question_title == question_name:
             if question["status"] == "ac":
-                solved = True
-    return solved
+                return True
+    return False
 
 
-def update_status(user_id: str, LEETCODE_SESSION: str):
-    user_data = config.db.user.find_one({"user_id": user_id})
-    latest_status = current_leetcode_status(LEETCODE_SESSION=LEETCODE_SESSION)
-    user_data["LeetCode"] = latest_status
-    config.db.user.update_one({"user_id": user_id}, {"$set": user_data})
+def update_status():
+    """Update all users' LeetCode status"""
+    for user_data in config.db.user.find({}):
+        latest_status = current_leetcode_status(
+            LEETCODE_SESSION=user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
+        )
+        user_data["LeetCode"] = latest_status
+        config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
 
 
-def current_leetcode_status(LEETCODE_SESSION: str) -> dict:
+def current_leetcode_status(LEETCODE_SESSION: str) -> Dict[str, bool]:
+    """Fetch current LeetCode question status
+
+    Args:
+        LEETCODE_SESSION (str): User's LeetCode session.
+
+    Returns:
+        Dict[str, bool]: User's LeetCode question status.
+    """
     user_stauts = {}
 
     cookies = {"LEETCODE_SESSION": LEETCODE_SESSION}
@@ -48,6 +84,16 @@ def current_leetcode_status(LEETCODE_SESSION: str) -> dict:
 def check_work_status(
     user_id: str, required_question: List[str], first_week=True
 ) -> dict:
+    """Check user's work status
+
+    Args:
+        user_id (str): User's LINE ID.
+        required_question (List[str]): Week required questions.
+        first_week (bool, optional): If this is first week. Defaults to True.
+
+    Returns:
+        dict: User's work status
+    """
     new_ac = []
     user_data = config.db.user.find_one({"user_id": user_id})
     old_status = user_data["LeetCode"]

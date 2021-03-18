@@ -13,7 +13,7 @@ line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
 def handle_follow(event):
-    """事件 - 新使用者加入Bot
+    """Event - New user add to LINE Bot
 
     Args:
         event (LINE Event Object): Refer to https://developers.line.biz/en/reference/messaging-api/#follow-event
@@ -33,7 +33,7 @@ def handle_follow(event):
 
 
 def handle_unfollow(event):
-    """事件 - 新使用者封鎖Bot
+    """Event - User ban LINE Bot
 
     Args:
         event (LINE Event Object): Refer to https://developers.line.biz/en/reference/messaging-api/#unfollow-event
