@@ -20,7 +20,9 @@ MONGO_USER = os.environ.get("MONGO_USER")
 MONGO_PWD = os.environ.get("MONGO_PWD")
 
 client = pymongo.MongoClient(
-    f"mongodb+srv://{MONGO_USER}:{MONGO_PWD}@cluster0.1u1l3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+    f"mongodb+srv://{MONGO_USER}:{MONGO_PWD}@cluster0.1u1l3.mongodb.net/db?retryWrites=true&w=majority"
 )
 
 db = client.db
+
+TOKEN = os.environ.get("TOKEN")

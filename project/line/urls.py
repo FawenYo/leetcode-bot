@@ -6,7 +6,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import *
 
-from . import message_event
+from . import message_event, user_event
 
 sys.path.append(".")
 
@@ -40,6 +40,24 @@ async def callback(request: Request) -> str:
     except InvalidSignatureError:
         raise HTTPException(status_code=400, detail="Missing Parameter")
     return "OK"
+
+
+@handler.add(FollowEvent)
+def handle_follow(event):
+    """事件 - 新使用者加入Bot
+    Args:
+        event (LINE Event Object): Refer to https://developers.line.biz/en/reference/messaging-api/#follow-event
+    """
+    user_event.handle_follow(event=event)
+
+
+@handler.add(UnfollowEvent)
+def handle_unfollow(event):
+    """事件 - 新使用者封鎖Bot
+    Args:
+        event (LINE Event Object): Refer to https://developers.line.biz/en/reference/messaging-api/#unfollow-event
+    """
+    user_event.handle_unfollow(event=event)
 
 
 @handler.add(MessageEvent, message=(TextMessage))

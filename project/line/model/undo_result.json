@@ -1,0 +1,16 @@
+{
+    "type": "bubble",
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "本週未完成項目：",
+                "weight": "bold",
+                "size": "md",
+                "align": "center"
+            }
+        ]
+    }
+}

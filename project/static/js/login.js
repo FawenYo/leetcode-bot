@@ -1,3 +1,67 @@
+let user_id = "";
+
+window.onload = () => {
+    initializeLiff("1655767329-J571PLN4");
+}
+
+function initializeLiff(myLiffId) {
+    liff
+        .init({
+            liffId: myLiffId,
+        })
+        .then(() => {
+            initializeApp();
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+}
+
+function initializeApp() {
+    if (!liff.isLoggedIn()) {
+        liff.login()
+    } else {
+        liff.getProfile()
+            .then((profile) => {
+                user_id = profile.userId;
+                fetchUserData();
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+}
+
+function fetchUserData() {
+    const requestOptions = {
+        method: 'GET',
+        header: { 'Content-Type': 'application/json' },
+        mode: 'same-origin'
+    };
+    const requestURL = `/api/leetcode/getdata?user_id=${user_id}`
+    fetch(requestURL, requestOptions)
+        .then(response => response.json())
+        .then((data) => {
+            console.log(data)
+            if (data.status == "failed") {
+                Swal.fire({
+                    icon: "error",
+                    title: "錯誤",
+                    text: data.message,
+                    confirmButtonText: "關閉"
+                })
+                    .then(() => {
+                        liff.closeWindow();
+                    })
+            }
+        })
+        .catch(error => {
+            console.log(error)
+            Swal.showValidationMessage(
+                "無法連接伺服器，請稍後再試！"
+            )
+        })
+}
 function Login() {
     LEETCODE_SESSION = document.getElementById("LEETCODE_SESSION").value;
     if (LEETCODE_SESSION == "") {
@@ -8,7 +72,6 @@ function Login() {
             confirmButtonText: "關閉"
         })
     } else {
-        user_id = "123"
         let data = { LEETCODE_SESSION, user_id }
 
         const requestOptions = {
@@ -30,17 +93,17 @@ function Login() {
                             Swal.fire({
                                 icon: "success",
                                 title: "成功",
-                                text: "已成功登入帳號！",
+                                text: data.message,
                                 confirmButtonText: "關閉"
                             })
                                 .then(() => {
-                                    console.log("close")
+                                    liff.closeWindow();
                                 })
                         } else {
                             Swal.fire({
                                 icon: "error",
                                 title: "錯誤",
-                                text: "登入失敗，請重新確認！",
+                                text: data.message,
                                 confirmButtonText: "關閉"
                             })
                         }

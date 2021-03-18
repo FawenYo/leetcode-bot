@@ -24,6 +24,7 @@ def handle_follow(event):
     data = {
         "user_id": event.source.user_id,
         "display_name": display_name,
+        "debit": 0,
         "add_time": now,
         "account": {"LeetCode": {"LEETCODE_SESSION": ""}},
         "LeetCode": {},
