@@ -25,8 +25,8 @@ jobs:
                   USERNAME: ${{ secrets.USERNAME }}
                   KEY: ${{ secrets.SSHKEY }}
                   script: |
-                      cd /home/fawenyo/Eatender
-                      git pull https://github.com/FawenYo/Eatender.git development
+                      cd /home/ubuntu/leetcode-bot
+                      git pull https://github.com/FawenYo/leetcode-bot.git development
                       docker-compose down -v --rmi all --remove-orphans
                       docker-compose up --build -d
                       curl http://localhost/init
