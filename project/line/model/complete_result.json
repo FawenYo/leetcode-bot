@@ -1,0 +1,67 @@
+{
+    "type": "bubble",
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "本週 LeetCode 刷刷鍋排行榜",
+                "weight": "bold",
+                "size": "md",
+                "align": "center"
+            },
+            {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "冠軍",
+                                "align": "center"
+                            },
+                            {
+                                "type": "text",
+                                "text": "example"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "題數",
+                                "align": "center"
+                            },
+                            {
+                                "type": "text",
+                                "text": "0",
+                                "align": "center",
+                                "size": "xxl"
+                            }
+                        ]
+                    }
+                ],
+                "margin": "md"
+            },
+            {
+                "type": "separator",
+                "margin": "md"
+            },
+            {
+                "type": "text",
+                "text": "本週刷題分佈情況",
+                "weight": "bold",
+                "size": "md",
+                "align": "center",
+                "margin": "md"
+            }
+        ]
+    }
+}
