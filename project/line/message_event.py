@@ -1,7 +1,7 @@
 import sys
 
 from linebot import LineBotApi
-from linebot.models import *
+from linebot.models import TextMessage, TextSendMessage
 
 from . import flex_template
 
@@ -27,16 +27,16 @@ def handle_message(event):
     if isinstance(event.message, TextMessage):
         user_message = event.message.text
         try:
-            if user_message == "查看結果":
-                message = cron.check_all_status(replyable=True)
-            elif user_message == "查看負債":
+            if user_message == "基本資料":
                 user_data = config.db.user.find_one({"user_id": user_id})
                 debit = user_data["debit"]
-                message = TextSendMessage(text=f"目前總負債金額：{debit}元")
+                messages = flex_template.info(user_id=user_id, debit=debit)
+            elif user_message == "查看結果":
+                messages = cron.week_check(replyable=True)
             else:
                 # 面對單一使用者
                 if event.source.type == "user":
-                    message = TextSendMessage(text="不好意思，我聽不懂你在說什麼呢QwQ")
+                    messages = TextSendMessage(text="不好意思，我聽不懂你在說什麼呢QwQ")
                 else:
                     can_reply = False
         except Exception as e:
@@ -44,4 +44,4 @@ def handle_message(event):
             config.console.print_exception()
 
         if can_reply:
-            line_bot_api.reply_message(reply_token, message)
+            line_bot_api.reply_message(reply_token=reply_token, messages=messages)

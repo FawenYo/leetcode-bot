@@ -1,15 +1,17 @@
+import threading
 from datetime import datetime
 from typing import List, Tuple
 
-import config
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from leetcode.info import check_work_status, update_status
-from line import flex_template
 from linebot import LineBotApi
 from linebot.models import *
+
+import config
+import leetcode.info
+from line import flex_template
 
 cron = APIRouter()
 line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
@@ -24,60 +26,28 @@ async def init() -> JSONResponse:
     """
     scheduler = BackgroundScheduler()
     scheduler.add_job(
-        check_all_status,
+        week_check,
         "cron",
         day_of_week="sun",
-        hour=00,
-        minute=00,
-        second=00,
+        hour=23,
+        minute=59,
+        second=59,
         timezone=pytz.timezone("Asia/Taipei"),
     )
     message = {"stauts": "success", "message": "已開始定時任務！"}
     return JSONResponse(content=message)
 
 
-def check_all_status(
+def week_check(
     replyable: bool = False,
-    current_date: str = datetime.strftime(datetime.now(), "%Y/%m/%d"),
 ):
-    """週末清算
+    """Week check LeetCode status
 
     Args:
-        replyable (bool, optional): 是否可以使用 reply 回覆. Defaults to False.
-        current_date (str, optional): 結算日期. Defaults to datetime.strftime(datetime.now(), "%Y/%m/%d").
+        replyable (bool, optional): If the message can use reply. Defaults to False.
     """
     update_user_profile()
-    user_status = {}
-    undo_users = []
-
-    question_data = config.db.questions.find_one({})
-    required_question = question_data["latest"]
-
-    for user in config.db.user.find():
-        work_status = check_work_status(
-            user_id=user["user_id"], required_question=required_question
-        )
-        user_status[user["user_id"]] = {
-            "display_name": user["display_name"],
-            "result": work_status,
-        }
-
-        if not work_status["complete"]:
-            undo_users.append(
-                {
-                    "user_id": user["user_id"],
-                    "user": user["display_name"],
-                    "debit": work_status["debit"],
-                }
-            )
-            if not replyable:
-                update_user_debit(user_id=user["user_id"], debit=work_status["debit"])
-    if not replyable:
-        # Update Question history result
-        question_data = config.db.questions.find_one({})
-        question_data["history"][current_date]["result"] = user_status
-        config.db.questions.update_one({}, {"$set": question_data})
-
+    user_status, undo_users = fetch_all_leetcode()
     sorted_status = sort_complete_status(user_status=user_status)
 
     message = [
@@ -90,17 +60,78 @@ def check_all_status(
         line_bot_api.push_message(
             to="C39d4dd7d542f3ce98cc69402a3dda664", messages=message
         )
-        update_status()
+        for user_data in config.db.user.find({}):
+            leetcode.info.update_status(user_data=user_data)
+
+
+def fetch_all_leetcode(
+    replyable: bool = False,
+    current_date: str = datetime.strftime(datetime.now(), "%Y/%m/%d"),
+) -> Tuple[dict, list]:
+    """Fetch All Users' LeetCode status
+
+    Args:
+        replyable (bool, optional): If the message can use reply. Defaults to False.
+        current_date (str, optional): Check date. Defaults to today.
+
+    Returns:
+        Tuple[dict, list]: (user_status, undo_users)
+    """
+    user_status = {}
+    undo_users = []
+    threads: List[threading.Thread] = []
+
+    question_data = config.db.questions.find_one({})
+    required_question = question_data["latest"]
+
+    def fetch_user_result(user_id: str, display_name: str):
+        work_status = leetcode.info.check_work_status(
+            user_id=user_id, required_question=required_question
+        )
+        user_status[user_id] = {
+            "display_name": display_name,
+            "result": work_status,
+        }
+
+        if not work_status["complete"]:
+            undo_users.append(
+                {
+                    "user_id": user_id,
+                    "user": display_name,
+                    "debit": work_status["debit"],
+                }
+            )
+            if not replyable:
+                update_user_debit(user_id=user["user_id"], debit=work_status["debit"])
+
+    # Multi-threading
+    for user in config.db.user.find():
+        user_id = user["user_id"]
+        display_name = user["display_name"]
+        threads.append(
+            threading.Thread(target=fetch_user_result, args=(user_id, display_name))
+        )
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    if not replyable:
+        # Update Question history result
+        question_data = config.db.questions.find_one({})
+        question_data["history"][current_date]["result"] = user_status
+        config.db.questions.update_one({}, {"$set": question_data})
+    return (user_status, undo_users)
 
 
 def sort_complete_status(user_status: dict) -> List[Tuple[int, List[str]]]:
-    """排序AC資料
+    """Sort Accepted data.
 
     Args:
-        user_status (dict): AC資料
+        user_status (dict): Accepted data.
 
     Returns:
-        List[Tuple[int, List[str]]]: 排序結果
+        List[Tuple[int, List[str]]]: sorted result
     """
     count_user_pairs = {}
     for user_id, user_data in user_status.items():
@@ -142,7 +173,7 @@ def check_last_week(user_id: str) -> int:
 
     user_data = question_data["history"][last_week]["result"][user_id]["result"]
     if user_data["debit"] > 0:
-        work_status = check_work_status(
+        work_status = leetcode.info.check_work_status(
             user_id=user_id, required_question=last_week_questions, first_week=False
         )
         debit = (user_data["debit"] - work_status["debit"]) / 2
@@ -159,11 +190,4 @@ def update_user_profile():
         display_name = profile.display_name
 
         user_data["display_name"] = display_name
-        config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
-
-
-def update_user_leetcode():
-    """更新使用者 LeetCode"""
-    for user_data in config.db.user.find({}):
-        LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
         config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})

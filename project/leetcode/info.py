@@ -46,14 +46,12 @@ def status_crawler(LEETCODE_SESSION: str, question_name: str) -> bool:
     return False
 
 
-def update_status():
-    """Update all users' LeetCode status"""
-    for user_data in config.db.user.find({}):
-        latest_status = current_leetcode_status(
-            LEETCODE_SESSION=user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
-        )
-        user_data["LeetCode"] = latest_status
-        config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
+def update_status(user_data):
+    """Update user's LeetCode status"""
+    LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
+    latest_status = current_leetcode_status(LEETCODE_SESSION=LEETCODE_SESSION)
+    user_data["LeetCode"] = latest_status
+    config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
 
 
 def current_leetcode_status(LEETCODE_SESSION: str) -> Dict[str, bool]:

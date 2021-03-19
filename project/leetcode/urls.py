@@ -38,9 +38,7 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
             message = {"status": "success", "message": "已成功登入帳號！"}
 
             # 更新 LeetCode 狀況
-            thread = threading.Thread(
-                target=info.update_status, args=(param.user_id, param.LEETCODE_SESSION)
-            )
+            thread = threading.Thread(target=info.update_status, args=(param.user_id,))
             thread.start()
         else:
             message = {"status": "failed", "message": "請先加入 LINE Bot 好友！"}
