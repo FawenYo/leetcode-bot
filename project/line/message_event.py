@@ -27,7 +27,7 @@ def handle_message(event):
     if isinstance(event.message, TextMessage):
         user_message = event.message.text
         try:
-            if user_message == "基本資料":
+            if user_message == "帳號操作":
                 user_data = config.db.user.find_one({"user_id": user_id})
                 debit = user_data["debit"]
                 messages = flex_template.info(user_id=user_id, debit=debit)
