@@ -5,6 +5,8 @@ import pytz
 from linebot import LineBotApi
 from linebot.models import *
 
+from . import flex_template
+
 sys.path.append(".")
 
 import config
@@ -18,11 +20,12 @@ def handle_follow(event):
     Args:
         event (LINE Event Object): Refer to https://developers.line.biz/en/reference/messaging-api/#follow-event
     """
-    profile = line_bot_api.get_profile(event.source.user_id)
+    user_id = event.source.user_id
+    profile = line_bot_api.get_profile(user_id)
     display_name = profile.display_name
     now = datetime.now(tz=pytz.timezone("Asia/Taipei"))
     data = {
-        "user_id": event.source.user_id,
+        "user_id": user_id,
         "display_name": display_name,
         "debit": 0,
         "add_time": now,
@@ -30,6 +33,9 @@ def handle_follow(event):
         "LeetCode": {},
     }
     config.db.user.insert_one(data)
+
+    messages = flex_template.info(user_id=user_id, debit=0)
+    line_bot_api.push_message(to=user_id, messages=messages)
 
 
 def handle_unfollow(event):

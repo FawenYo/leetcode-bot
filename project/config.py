@@ -1,6 +1,4 @@
-import json
 import os
-import threading
 
 import pymongo
 from dotenv import load_dotenv

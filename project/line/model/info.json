@@ -1,0 +1,147 @@
+{
+    "type": "bubble",
+    "hero": {
+        "type": "image",
+        "url": "https://i.imgur.com/uZeROCt.png",
+        "size": "full",
+        "aspectRatio": "20:13",
+        "aspectMode": "fit"
+    },
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "LeetCode 刷刷鍋小助手",
+                "weight": "bold",
+                "size": "xl",
+                "align": "center"
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "margin": "lg",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "使用者",
+                                "color": "#aaaaaa",
+                                "size": "sm",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "example",
+                                "wrap": true,
+                                "color": "#666666",
+                                "size": "sm",
+                                "flex": 5
+                            }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "LeetCode",
+                                "color": "#aaaaaa",
+                                "size": "sm",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "尚未綁定",
+                                "wrap": true,
+                                "color": "#FF0000",
+                                "size": "sm",
+                                "flex": 5
+                            }
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "貢獻金額",
+                                "color": "#aaaaaa",
+                                "size": "sm",
+                                "flex": 3
+                            },
+                            {
+                                "type": "text",
+                                "text": "0元",
+                                "wrap": true,
+                                "color": "#666666",
+                                "size": "sm",
+                                "flex": 5
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "footer": {
+        "type": "box",
+        "layout": "horizontal",
+        "spacing": "sm",
+        "contents": [
+            {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "link",
+                        "height": "sm",
+                        "action": {
+                            "type": "uri",
+                            "label": "登入帳號",
+                            "uri": "https://liff.line.me/1655767329-J571PLN4"
+                        },
+                        "color": "#000000"
+                    }
+                ],
+                "backgroundColor": "#ffd54f",
+                "cornerRadius": "25px"
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "link",
+                        "height": "sm",
+                        "action": {
+                            "type": "uri",
+                            "label": "查看教學",
+                            "uri": "https://hackmd.io/@FawenYo/r1sxqBxVu"
+                        },
+                        "color": "#000000"
+                    }
+                ],
+                "backgroundColor": "#ffd54f",
+                "cornerRadius": "25px"
+            },
+            {
+                "type": "spacer",
+                "size": "sm"
+            }
+        ],
+        "flex": 0
+    }
+}

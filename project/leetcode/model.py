@@ -9,7 +9,8 @@ class GetLeetCodeStatus(BaseModel):
 
 
 class SetQuestion(BaseModel):
-    questions: List[str]
+    required_questions: List[str]
+    optional_questions: List[str]
     end_date: str
     last_week: str
     token: str

@@ -1,0 +1,96 @@
+{
+    "type": "bubble",
+    "hero": {
+        "type": "image",
+        "url": "https://i.imgur.com/uZeROCt.png",
+        "size": "full",
+        "aspectRatio": "20:13",
+        "aspectMode": "fit"
+    },
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "本週題目",
+                "weight": "bold",
+                "size": "xl",
+                "align": "center"
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "margin": "lg",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "必寫",
+                                "color": "#FF0000",
+                                "size": "sm",
+                                "flex": 1
+                            },
+                            {
+                                "type": "text",
+                                "text": "0. example",
+                                "wrap": true,
+                                "color": "#666666",
+                                "size": "sm",
+                                "flex": 5
+                            }
+                        ]
+                    },
+                    {
+                        "type": "separator"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "baseline",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "選寫",
+                                "color": "#aaaaaa",
+                                "size": "sm",
+                                "flex": 1
+                            },
+                            {
+                                "type": "text",
+                                "text": "0. example",
+                                "wrap": true,
+                                "color": "#666666",
+                                "size": "sm",
+                                "flex": 5
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "footer": {
+        "type": "box",
+        "layout": "vertical",
+        "spacing": "sm",
+        "contents": [
+            {
+                "type": "text",
+                "text": "截止日期：1/1（六）",
+                "align": "center",
+                "weight": "bold"
+            },
+            {
+                "type": "spacer",
+                "size": "sm"
+            }
+        ],
+        "flex": 0
+    }
+}
