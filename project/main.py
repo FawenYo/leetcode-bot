@@ -1,12 +1,11 @@
 import os
 
 import uvicorn
+from cron import cron
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-
-from cron import cron
 from leetcode.urls import leetcode
 from line.urls import line_app
 from view import view

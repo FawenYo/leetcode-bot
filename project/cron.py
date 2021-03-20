@@ -2,16 +2,15 @@ import threading
 from datetime import datetime
 from typing import List, Tuple
 
+import config
+import leetcode.info
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from line import flex_template
 from linebot import LineBotApi
 from linebot.models import *
-
-import config
-import leetcode.info
-from line import flex_template
 
 cron = APIRouter()
 line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
@@ -82,7 +81,7 @@ def fetch_all_leetcode(
     threads: List[threading.Thread] = []
 
     question_data = config.db.questions.find_one({})
-    required_question = question_data["latest"]
+    required_question = question_data["latest"]["required"]
 
     def fetch_user_result(user_data: dict):
         user_id = user_data["user_id"]
@@ -170,7 +169,7 @@ def check_last_week(user_id: str) -> int:
     debit = 0
     question_data = config.db.questions.find_one({})
     last_week = question_data["last_week"]
-    last_week_questions = question_data["history"][last_week]["questions"]
+    last_week_questions = question_data["history"][last_week]["questions"]["required"]
 
     user_data = question_data["history"][last_week]["result"][user_id]["result"]
     if user_data["debit"] > 0:

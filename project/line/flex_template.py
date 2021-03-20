@@ -11,6 +11,23 @@ import config
 line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
+def set_question(
+    required_questions: List[str], optional_questions: List[str]
+) -> FlexSendMessage:
+    with open("line/model/set_question.json") as json_file:
+        contents = json.load(json_file)
+
+    contents["body"]["contents"][1]["contents"][0]["contents"][1]["text"] = "\n".join(
+        required_questions
+    )
+
+    contents["body"]["contents"][1]["contents"][2]["contents"][1]["text"] = "\n".join(
+        optional_questions
+    )
+    message = FlexSendMessage(alt_text="本週題目", contents=contents)
+    return message
+
+
 def info(user_id: str, debit: int) -> FlexSendMessage:
     """User info summary
 
