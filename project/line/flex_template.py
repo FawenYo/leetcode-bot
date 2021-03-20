@@ -126,7 +126,7 @@ def undo_result(data: List[dict]) -> FlexSendMessage:
                 {"type": "text", "text": each["user"], "flex": 5},
                 {
                     "type": "text",
-                    "text": f"欠 {each['debit']} 元",
+                    "text": f"貢獻{each['debit']}元",
                     "flex": 5,
                     "align": "center",
                 },

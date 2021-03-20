@@ -75,7 +75,7 @@
                         "contents": [
                             {
                                 "type": "text",
-                                "text": "負債金額",
+                                "text": "貢獻金額",
                                 "color": "#aaaaaa",
                                 "size": "sm",
                                 "flex": 3

@@ -84,33 +84,34 @@ def fetch_all_leetcode(
     question_data = config.db.questions.find_one({})
     required_question = question_data["latest"]
 
-    def fetch_user_result(user_id: str, display_name: str):
-        work_status = leetcode.info.check_work_status(
-            user_id=user_id, required_question=required_question
-        )
-        user_status[user_id] = {
-            "display_name": display_name,
-            "result": work_status,
-        }
-
-        if not work_status["complete"]:
-            undo_users.append(
-                {
-                    "user_id": user_id,
-                    "user": display_name,
-                    "debit": work_status["debit"],
-                }
+    def fetch_user_result(user_data: dict):
+        user_id = user_data["user_id"]
+        display_name = user_data["display_name"]
+        if user_data["account"]["LeetCode"]["LEETCODE_SESSION"] != "":
+            work_status = leetcode.info.check_work_status(
+                user_id=user_id, required_question=required_question
             )
-            if not replyable:
-                update_user_debit(user_id=user["user_id"], debit=work_status["debit"])
+            user_status[user_id] = {
+                "display_name": display_name,
+                "result": work_status,
+            }
+
+            if not work_status["complete"]:
+                undo_users.append(
+                    {
+                        "user_id": user_id,
+                        "user": display_name,
+                        "debit": work_status["debit"],
+                    }
+                )
+                if not replyable:
+                    update_user_debit(
+                        user_id=user_data["user_id"], debit=work_status["debit"]
+                    )
 
     # Multi-threading
-    for user in config.db.user.find():
-        user_id = user["user_id"]
-        display_name = user["display_name"]
-        threads.append(
-            threading.Thread(target=fetch_user_result, args=(user_id, display_name))
-        )
+    for user_data in config.db.user.find():
+        threads.append(threading.Thread(target=fetch_user_result, args=(user_data,)))
     for thread in threads:
         thread.start()
     for thread in threads:
