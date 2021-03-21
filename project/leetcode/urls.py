@@ -90,15 +90,21 @@ async def set_week_question(param: SetQuestion) -> JSONResponse:
             required_questions = param.required_questions
             optional_questions = param.optional_questions
 
-            for each in required_questions:
-                if not info.find_question(question_name=each):
+            for index, question_name in enumerate(required_questions):
+                question_id = info.find_question(question_name=question_name)
+                if question_id == -1:
                     question_exist = False
-                    no_questions.append(each)
+                    no_questions.append(question_name)
+                else:
+                    required_questions[index] = f"{question_id}. {question_name}"
 
-            for each in optional_questions:
-                if not info.find_question(question_name=each):
+            for index, question_name in enumerate(optional_questions):
+                question_id = info.find_question(question_name=question_name)
+                if question_id == -1:
                     question_exist = False
-                    no_questions.append(each)
+                    no_questions.append(question_name)
+                else:
+                    optional_questions[index] = f"{question_id}. {question_name}"
 
             if question_exist:
                 question_data = config.db.questions.find_one({})
@@ -121,7 +127,7 @@ async def set_week_question(param: SetQuestion) -> JSONResponse:
                     end_date=param.end_date,
                 )
                 line_bot_api.push_message(
-                    to="C39d4dd7d542f3ce98cc69402a3dda664", messages=message_template
+                    to="Uf5b60799f9be7c6bcb92a74e13b249b1", messages=message_template
                 )
                 config.db.questions.update_one({}, {"$set": question_data})
                 message = {"status": "success", "message": "已成功設置！"}

@@ -7,21 +7,21 @@ sys.path.append(".")
 import config
 
 
-def find_question(question_name: str) -> bool:
+def find_question(question_name: str) -> int:
     """Check if LeetCode question exist.
 
     Args:
         question_name (str): LeetCode question name.
 
     Returns:
-        bool: Exist or not
+        int: question id. -1 for not exist
     """
     response = requests.get("https://leetcode.com/api/problems/all/").json()
     for question in response["stat_status_pairs"]:
         question_title = question["stat"]["question__title"]
         if question_title == question_name:
-            return True
-    return False
+            return question["stat"]["question_id"]
+    return -1
 
 
 def status_crawler(LEETCODE_SESSION: str, question_name: str) -> bool:
