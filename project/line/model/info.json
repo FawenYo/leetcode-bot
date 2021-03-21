@@ -136,10 +136,6 @@
                 ],
                 "backgroundColor": "#ffd54f",
                 "cornerRadius": "25px"
-            },
-            {
-                "type": "spacer",
-                "size": "sm"
             }
         ],
         "flex": 0

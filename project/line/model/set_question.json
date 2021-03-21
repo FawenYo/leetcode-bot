@@ -82,13 +82,9 @@
         "contents": [
             {
                 "type": "text",
-                "text": "截止日期：1/1（六）",
+                "text": "截止日期：1/1（六）18:00:00",
                 "align": "center",
                 "weight": "bold"
-            },
-            {
-                "type": "spacer",
-                "size": "sm"
             }
         ],
         "flex": 0

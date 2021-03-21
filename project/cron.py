@@ -28,9 +28,9 @@ async def init() -> JSONResponse:
         week_check,
         "cron",
         day_of_week="sun",
-        hour=23,
-        minute=59,
-        second=59,
+        hour=18,
+        minute=00,
+        second=00,
         timezone=pytz.timezone("Asia/Taipei"),
     )
     message = {"stauts": "success", "message": "已開始定時任務！"}

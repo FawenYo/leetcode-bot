@@ -41,7 +41,7 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
             message = {"status": "success", "message": "已成功登入帳號！"}
 
             # 更新 LeetCode 狀況
-            thread = threading.Thread(target=info.update_status, args=(param.user_id,))
+            thread = threading.Thread(target=info.update_status, args=(user_data,))
             thread.start()
         else:
             message = {"status": "failed", "message": "請先加入 LINE Bot 好友！"}
@@ -115,12 +115,13 @@ async def set_week_question(param: SetQuestion) -> JSONResponse:
                     "result": {},
                 }
                 question_data["last_week"] = param.last_week
-                message = flex_template.set_question(
+                message_template = flex_template.set_question(
                     required_questions=required_questions,
                     optional_questions=optional_questions,
+                    end_date=param.end_date,
                 )
                 line_bot_api.push_message(
-                    to="C39d4dd7d542f3ce98cc69402a3dda664", messages=message
+                    to="C39d4dd7d542f3ce98cc69402a3dda664", messages=message_template
                 )
                 config.db.questions.update_one({}, {"$set": question_data})
                 message = {"status": "success", "message": "已成功設置！"}

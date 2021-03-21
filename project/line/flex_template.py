@@ -1,7 +1,7 @@
 import json
 import sys
 from typing import List, Tuple
-
+from datetime import datetime
 from linebot import LineBotApi
 from linebot.models import FlexSendMessage
 
@@ -11,8 +11,11 @@ import config
 line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
+weekday_text_map = {0: "一", 1: "二", 2: "三", 3: "四", 4: "五", 5: "六", 6: "日"}
+
+
 def set_question(
-    required_questions: List[str], optional_questions: List[str]
+    required_questions: List[str], optional_questions: List[str], end_date: str
 ) -> FlexSendMessage:
     with open("line/model/set_question.json") as json_file:
         contents = json.load(json_file)
@@ -24,6 +27,10 @@ def set_question(
     contents["body"]["contents"][1]["contents"][2]["contents"][1]["text"] = "\n".join(
         optional_questions
     )
+    end_date_format = datetime.strptime(end_date, "%Y/%m/%d")
+    contents["footer"]["contents"][0][
+        "text"
+    ] = f"截止日期：{end_date_format.month}/{end_date_format.day}（{weekday_text_map[end_date_format.weekday()]}）18:00:00"
     message = FlexSendMessage(alt_text="本週題目", contents=contents)
     return message
 
