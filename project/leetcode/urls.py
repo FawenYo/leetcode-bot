@@ -127,7 +127,7 @@ async def set_week_question(param: SetQuestion) -> JSONResponse:
                     end_date=param.end_date,
                 )
                 line_bot_api.push_message(
-                    to="Uf5b60799f9be7c6bcb92a74e13b249b1", messages=message_template
+                    to="C39d4dd7d542f3ce98cc69402a3dda664", messages=message_template
                 )
                 config.db.questions.update_one({}, {"$set": question_data})
                 message = {"status": "success", "message": "已成功設置！"}
