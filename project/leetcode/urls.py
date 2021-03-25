@@ -112,6 +112,7 @@ async def set_week_question(param: SetQuestion) -> JSONResponse:
                 question_data["latest"] = {
                     "required": required_questions,
                     "optional": optional_questions,
+                    "end_date": param.end_date,
                 }
                 question_data["history"][param.end_date] = {
                     "questions": {

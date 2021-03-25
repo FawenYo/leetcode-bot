@@ -33,6 +33,16 @@ def handle_message(event):
                 messages = flex_template.info(user_id=user_id, debit=debit)
             elif user_message == "查看結果":
                 messages = cron.week_check(replyable=True)
+            elif user_message == "本週題目":
+                question_data = config.db.questions.find_one({})
+                required_questions = question_data["latest"]["required"]
+                optional_questions = question_data["latest"]["optional"]
+                end_date = question_data["latest"]["end_date"]
+                messages = flex_template.set_question(
+                    required_questions=required_questions,
+                    optional_questions=optional_questions,
+                    end_date=end_date,
+                )
             else:
                 # 面對單一使用者
                 if event.source.type == "user":
