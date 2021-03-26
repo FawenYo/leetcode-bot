@@ -54,6 +54,23 @@ def update_status(user_data):
     config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
 
 
+def find_question_status(LEETCODE_SESSION: str, questions: List[str]) -> List[str]:
+    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION}
+    response = requests.get(
+        "https://leetcode.com/api/problems/all/", cookies=cookies
+    ).json()
+    for question in response["stat_status_pairs"]:
+        question_title = question["stat"]["question__title"]
+        question_id = question["stat"]["question_id"]
+        if f"{question_id}. {question_title}" in questions:
+            question_index = questions.index(f"{question_id}. {question_title}")
+            if question["status"] == "ac":
+                questions[question_index] = f"{question_id}. {question_title} (已完成)"
+            else:
+                questions[question_index] = f"{question_id}. {question_title} (未完成)"
+    return questions
+
+
 def current_leetcode_status(LEETCODE_SESSION: str) -> Dict[str, bool]:
     """Fetch current LeetCode question status
 
