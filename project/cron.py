@@ -89,27 +89,26 @@ def fetch_all_leetcode(
     def fetch_user_result(user_data: dict):
         user_id = user_data["user_id"]
         display_name = user_data["display_name"]
-        if user_data["account"]["LeetCode"]["LEETCODE_SESSION"] != "":
-            work_status = leetcode.info.check_work_status(
-                user_id=user_id, required_question=required_question
-            )
-            user_status[user_id] = {
-                "display_name": display_name,
-                "result": work_status,
-            }
+        work_status = leetcode.info.check_work_status(
+            user_id=user_id, required_question=required_question
+        )
+        user_status[user_id] = {
+            "display_name": display_name,
+            "result": work_status,
+        }
 
-            if not work_status["complete"]:
-                undo_users.append(
-                    {
-                        "user_id": user_id,
-                        "user": display_name,
-                        "debit": work_status["debit"],
-                    }
+        if not work_status["complete"]:
+            undo_users.append(
+                {
+                    "user_id": user_id,
+                    "user": display_name,
+                    "debit": work_status["debit"],
+                }
+            )
+            if not replyable:
+                update_user_debit(
+                    user_id=user_data["user_id"], debit=work_status["debit"]
                 )
-                if not replyable:
-                    update_user_debit(
-                        user_id=user_data["user_id"], debit=work_status["debit"]
-                    )
 
     # Multi-threading
     for user_data in config.db.user.find():
