@@ -1,7 +1,8 @@
 import json
 import sys
-from typing import List, Tuple
 from datetime import datetime
+from typing import List, Tuple
+
 from linebot import LineBotApi
 from linebot.models import FlexSendMessage
 

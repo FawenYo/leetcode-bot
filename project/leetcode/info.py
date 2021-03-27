@@ -1,3 +1,4 @@
+import copy
 import sys
 from typing import Dict, List
 
@@ -115,10 +116,12 @@ def check_work_status(
     latest_status = current_leetcode_status(
         LEETCODE_SESSION=user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
     )
+    # deep copy to prevent affect others
+    copy_required = copy.deepcopy(required_question)
     for key, value in latest_status.items():
         # 必選
-        if key in required_question and value == True:
-            del required_question[required_question.index(key)]
+        if key in copy_required and value == True:
+            del copy_required[copy_required.index(key)]
         else:
             # 新作答題目
             try:
@@ -127,22 +130,21 @@ def check_work_status(
                     new_ac.append(key)
             except KeyError:
                 pass
-
-    if len(required_question) == 0:
+    if len(copy_required) == 0:
         return {
             "complete": True,
-            "undo": required_question,
+            "undo": copy_required,
             "new_ac": new_ac,
             "debit": 0,
         }
     else:
         if first_week:
-            debit = 10 * len(required_question)
+            debit = 10 * len(copy_required)
         else:
-            debit = 40 * len(required_question)
+            debit = 40 * len(copy_required)
         return {
             "complete": False,
-            "undo": required_question,
+            "undo": copy_required,
             "new_ac": new_ac,
             "debit": debit,
         }

@@ -82,6 +82,9 @@ def fetch_all_leetcode(
 
     question_data = config.db.questions.find_one({})
     required_question = question_data["latest"]["required"]
+    # Remove question ID
+    for index, value in enumerate(required_question):
+        required_question[index] = value.split(". ")[1]
 
     def fetch_user_result(user_data: dict):
         user_id = user_data["user_id"]
