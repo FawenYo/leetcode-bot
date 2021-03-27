@@ -46,7 +46,7 @@ def week_check(
         replyable (bool, optional): If the message can use reply. Defaults to False.
     """
     update_user_profile()
-    user_status, undo_users = fetch_all_leetcode()
+    user_status, undo_users = fetch_all_leetcode(replyable=replyable)
     sorted_status = sort_complete_status(user_status=user_status)
 
     message = [
