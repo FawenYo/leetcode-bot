@@ -81,7 +81,8 @@ def fetch_all_leetcode(
     threads: List[threading.Thread] = []
 
     question_data = config.db.questions.find_one({})
-    required_question = question_data["latest"]["required"]
+    check_date = question_data["latest"]["check_date"]
+    required_question = question_data["history"][check_date]["questions"]["required"]
     # Remove question ID
     for index, value in enumerate(required_question):
         required_question[index] = value.split(". ")[1]
@@ -119,9 +120,12 @@ def fetch_all_leetcode(
         thread.join()
 
     if not replyable:
-        # Update Question history result
-        question_data = config.db.questions.find_one({})
+        # Update question history result
         question_data["history"][current_date]["result"] = user_status
+        # Update check date
+        question_data["latest"]["history"][check_date]["questions"][
+            "check_date"
+        ] = question_data["latest"]["history"][check_date]["questions"]["end_date"]
         config.db.questions.update_one({}, {"$set": question_data})
     return (user_status, undo_users)
 
