@@ -24,8 +24,11 @@ def update_user_profile() -> None:
 
 def update_database(user_data: dict) -> None:
     user_id = user_data["user_id"]
-    profile = line_bot_api.get_profile(user_id)
-    display_name = profile.display_name
+    try:
+        profile = line_bot_api.get_profile(user_id)
+        display_name = profile.display_name
 
-    user_data["display_name"] = display_name
-    config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
+        user_data["display_name"] = display_name
+        config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
+    except:
+        pass
