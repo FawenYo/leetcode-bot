@@ -37,18 +37,6 @@ async def init() -> JSONResponse:
     return JSONResponse(content=message)
 
 
-@cron.get("/start", response_class=JSONResponse)
-async def quick_start() -> JSONResponse:
-    """Start cron jobs
-
-    Returns:
-        JSONResponse: Start status
-    """
-    week_check()
-    message = {"stauts": "success", "message": "已完成任務！"}
-    return JSONResponse(content=message)
-
-
 def week_check(
     replyable: bool = False,
 ) -> None:
@@ -141,9 +129,7 @@ def fetch_all_leetcode(
         # Update question history result
         question_data["history"][current_date]["result"] = user_status
         # Update check date
-        question_data["history"][check_date]["questions"]["check_date"] = question_data[
-            "history"
-        ][check_date]["questions"]["end_date"]
+        question_data["latest"]["check_date"] = question_data["latest"]["end_date"]
         config.db.questions.update_one({}, {"$set": question_data})
     return (user_status, undo_users)
 
