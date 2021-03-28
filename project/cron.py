@@ -2,14 +2,15 @@ import threading
 from datetime import datetime
 from typing import List, Tuple
 
-import config
-import leetcode.info
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from line import actions, flex_template
 from linebot import LineBotApi
+
+import config
+import leetcode.info
+from line import actions, flex_template
 
 cron = APIRouter()
 line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)

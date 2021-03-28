@@ -1,6 +1,6 @@
 import json
 import sys
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Tuple
 
 from linebot import LineBotApi
@@ -16,11 +16,15 @@ weekday_text_map = {0: "一", 1: "二", 2: "三", 3: "四", 4: "五", 5: "六", 
 
 
 def set_question(
-    required_questions: List[str], optional_questions: List[str], end_date: str
+    required_questions: List[str],
+    optional_questions: List[str],
+    end_date: str,
+    date_status: str = "本週",
 ) -> FlexSendMessage:
     with open("line/model/set_question.json") as json_file:
         contents = json.load(json_file)
 
+    contents["body"]["contents"][0]["text"] = f"{date_status}題目"
     contents["body"]["contents"][1]["contents"][0]["contents"][1]["text"] = "\n".join(
         required_questions
     )
@@ -170,3 +174,15 @@ def count_all_users(data: List[Tuple[int, List[str]]]) -> int:
     for each in data:
         user_count += len(each[1])
     return user_count
+
+
+def select_history_date() -> FlexSendMessage:
+    """Select LeetCode history date
+
+    Returns:
+        FlexSendMessage: 選擇歷史題目截止日期
+    """
+    with open("line/model/select_history_date.json") as json_file:
+        contents = json.load(json_file)
+    message = FlexSendMessage(alt_text="選擇歷史題目截止日期", contents=contents)
+    return message

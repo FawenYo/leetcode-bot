@@ -24,7 +24,7 @@ def handle_message(event):
     user_id = event.source.user_id
     reply_token = event.reply_token
 
-    # 文字訊息
+    # LINE Text message
     if isinstance(event.message, TextMessage):
         user_message = event.message.text
         try:
@@ -55,8 +55,10 @@ def handle_message(event):
                     )
                 else:
                     messages = TextSendMessage(f"尚未綁定 LeetCode 帳號，請先綁定！")
+            elif user_message == "歷史題目":
+                messages = flex_template.select_history_date()
             else:
-                # 面對單一使用者
+                # To single user
                 if event.source.type == "user":
                     messages = TextSendMessage(text="不好意思，我聽不懂你在說什麼呢QwQ")
                 else:

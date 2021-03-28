@@ -6,7 +6,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import *
 
-from . import message_event, user_event
+from . import message_event, postback_event, user_event
 
 sys.path.append(".")
 
@@ -68,3 +68,12 @@ def handle_message(event):
         event (LINE Event Object): Refer to https://developers.line.biz/en/reference/messaging-api/#message-event
     """
     message_event.handle_message(event=event)
+
+
+@handler.add(PostbackEvent)
+def handle_postback(event):
+    """事件 - Postback
+    Args:
+        event (LINE Event Object): Refer to https://developers.line.biz/en/reference/messaging-api/#postback-event
+    """
+    postback_event.handle_postback(event=event)
