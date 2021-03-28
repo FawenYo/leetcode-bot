@@ -16,6 +16,7 @@ cron = APIRouter()
 line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
+@cron.get("/init", response_class=JSONResponse)
 async def init() -> JSONResponse:
     """Init Cron jobs
 
@@ -33,6 +34,18 @@ async def init() -> JSONResponse:
         timezone=pytz.timezone("Asia/Taipei"),
     )
     message = {"stauts": "success", "message": "已開始定時任務！"}
+    return JSONResponse(content=message)
+
+
+@cron.get("/start", response_class=JSONResponse)
+async def quick_start() -> JSONResponse:
+    """Start cron jobs
+
+    Returns:
+        JSONResponse: Start status
+    """
+    week_check()
+    message = {"stauts": "success", "message": "已完成任務！"}
     return JSONResponse(content=message)
 
 
