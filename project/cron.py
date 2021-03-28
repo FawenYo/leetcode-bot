@@ -142,8 +142,8 @@ def fetch_all_leetcode(
         question_data["history"][current_date]["result"] = user_status
         # Update check date
         question_data["history"][check_date]["questions"]["check_date"] = question_data[
-            "latest"
-        ]["history"][check_date]["questions"]["end_date"]
+            "history"
+        ][check_date]["questions"]["end_date"]
         config.db.questions.update_one({}, {"$set": question_data})
     return (user_status, undo_users)
 
