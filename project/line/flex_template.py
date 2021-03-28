@@ -176,13 +176,13 @@ def count_all_users(data: List[Tuple[int, List[str]]]) -> int:
     return user_count
 
 
-def select_history_date() -> FlexSendMessage:
+def check_questions() -> FlexSendMessage:
     """Select LeetCode history date
 
     Returns:
-        FlexSendMessage: 選擇歷史題目截止日期
+        FlexSendMessage: 查看題目
     """
-    with open("line/model/select_history_date.json") as json_file:
+    with open("line/model/check_questions.json") as json_file:
         contents = json.load(json_file)
-    message = FlexSendMessage(alt_text="選擇歷史題目截止日期", contents=contents)
+    message = FlexSendMessage(alt_text="查看題目", contents=contents)
     return message

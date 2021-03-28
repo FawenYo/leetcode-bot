@@ -13,35 +13,37 @@
         "contents": [
             {
                 "type": "text",
-                "text": "歷史題目",
+                "text": "請選擇項目",
                 "weight": "bold",
                 "size": "xl",
                 "align": "center"
-            },
-            {
-                "type": "text",
-                "text": "（請選擇歷史題目之截止日期）",
-                "align": "center",
-                "color": "#9e9e9e"
             }
         ]
     },
     "footer": {
         "type": "box",
-        "layout": "vertical",
+        "layout": "horizontal",
         "contents": [
             {
                 "type": "button",
                 "action": {
+                    "type": "message",
+                    "label": "本週題目",
+                    "text": "本週題目"
+                },
+                "style": "primary"
+            },
+            {
+                "type": "button",
+                "action": {
                     "type": "datetimepicker",
-                    "label": "選擇日期",
+                    "label": "歷史題目",
                     "data": "歷史題目",
                     "mode": "date"
                 },
-                "color": "#ff0000"
+                "style": "secondary"
             }
         ],
-        "backgroundColor": "#fdd835",
-        "cornerRadius": "none"
+        "spacing": "10px"
     }
 }

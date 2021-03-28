@@ -34,6 +34,8 @@ def handle_message(event):
                 messages = flex_template.info(user_id=user_id, debit=debit)
             elif user_message == "查看結果":
                 messages = cron.week_check(replyable=True)
+            elif user_message == "查看題目":
+                messages = flex_template.check_questions()
             elif user_message == "本週題目":
                 user_data = config.db.user.find_one({"user_id": user_id})
                 LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
@@ -55,8 +57,6 @@ def handle_message(event):
                     )
                 else:
                     messages = TextSendMessage(f"尚未綁定 LeetCode 帳號，請先綁定！")
-            elif user_message == "歷史題目":
-                messages = flex_template.select_history_date()
             else:
                 # To single user
                 if event.source.type == "user":
