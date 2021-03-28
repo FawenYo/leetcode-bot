@@ -98,13 +98,17 @@ def current_leetcode_status(LEETCODE_SESSION: str) -> Dict[str, bool]:
 
 
 def check_work_status(
-    user_id: str, required_question: List[str], first_week=True
+    user_id: str,
+    required_questions: List[str],
+    optional_questions: List[str],
+    first_week=True,
 ) -> dict:
     """Check user's work status
 
     Args:
         user_id (str): User's LINE ID.
-        required_question (List[str]): Week required questions.
+        required_questions (List[str]): Week required questions.
+        optional_questions (List[str]): Week optional questions.
         first_week (bool, optional): If this is first week. Defaults to True.
 
     Returns:
@@ -116,19 +120,25 @@ def check_work_status(
     latest_status = current_leetcode_status(
         LEETCODE_SESSION=user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
     )
-    # deep copy to prevent affect others
-    copy_required = copy.deepcopy(required_question)
+    # shallow copy to prevent affect others
+    copy_required = copy.copy(required_questions)
     for key, value in latest_status.items():
-        # 必選
-        if key in copy_required and value == True:
-            del copy_required[copy_required.index(key)]
-        # 新作答題目
-        try:
-            before_status = old_status[key]
-            if before_status ^ value:
+        if value == True:
+            # 必選
+            if key in copy_required:
+                del copy_required[copy_required.index(key)]
                 new_ac.append(key)
-        except KeyError:
-            pass
+            # 選寫
+            elif key in optional_questions:
+                new_ac.append(key)
+            # 其他題目
+            else:
+                try:
+                    before_status = old_status[key]
+                    if before_status ^ value:
+                        new_ac.append(key)
+                except KeyError:
+                    pass
     if len(copy_required) == 0:
         return {
             "complete": True,

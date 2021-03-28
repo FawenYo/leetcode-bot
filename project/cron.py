@@ -80,16 +80,22 @@ def fetch_all_leetcode(
 
     question_data = config.db.questions.find_one({})
     check_date = question_data["latest"]["check_date"]
-    required_question = question_data["history"][check_date]["questions"]["required"]
+    required_questions = question_data["history"][check_date]["questions"]["required"]
+    optional_questions = question_data["history"][check_date]["questions"]["optional"]
+
     # Remove question ID
-    for index, value in enumerate(required_question):
-        required_question[index] = value.split(". ")[1]
+    for index, value in enumerate(required_questions):
+        required_questions[index] = value.split(". ")[1]
+    for index, value in enumerate(optional_questions):
+        optional_questions[index] = value.split(". ")[1]
 
     def fetch_user_result(user_data: dict):
         user_id = user_data["user_id"]
         display_name = user_data["display_name"]
         work_status = leetcode.info.check_work_status(
-            user_id=user_id, required_question=required_question
+            user_id=user_id,
+            required_questions=required_questions,
+            optional_questions=optional_questions,
         )
         user_status[user_id] = {
             "display_name": display_name,
@@ -176,12 +182,20 @@ def check_last_week(user_id: str, current_date: str) -> int:
     last_week = question_data["last_week"]
     if current_date == last_week:
         return debit
-    last_week_questions = question_data["history"][last_week]["questions"]["required"]
+    last_week_required_questions = question_data["history"][last_week]["questions"][
+        "required"
+    ]
+    last_week_optional_questions = question_data["history"][last_week]["questions"][
+        "optional"
+    ]
 
     user_data = question_data["history"][last_week]["result"][user_id]["result"]
     if user_data["debit"] > 0:
         work_status = leetcode.info.check_work_status(
-            user_id=user_id, required_question=last_week_questions, first_week=False
+            user_id=user_id,
+            required_questions=last_week_required_questions,
+            optinoal_questions=last_week_optional_questions,
+            first_week=False,
         )
         debit = (user_data["debit"] - work_status["debit"]) / 2
         question_data["history"][last_week]["result"][user_id]["result"] = work_status
