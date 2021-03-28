@@ -122,14 +122,13 @@ def check_work_status(
         # 必選
         if key in copy_required and value == True:
             del copy_required[copy_required.index(key)]
-        else:
-            # 新作答題目
-            try:
-                before_status = old_status[key]
-                if before_status ^ value:
-                    new_ac.append(key)
-            except KeyError:
-                pass
+        # 新作答題目
+        try:
+            before_status = old_status[key]
+            if before_status ^ value:
+                new_ac.append(key)
+        except KeyError:
+            pass
     if len(copy_required) == 0:
         return {
             "complete": True,

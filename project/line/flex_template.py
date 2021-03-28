@@ -79,24 +79,10 @@ def complete_result(data: List[Tuple[int, List[str]]]) -> FlexSendMessage:
     """
     with open("line/model/complete_result.json") as json_file:
         contents = json.load(json_file)
-    champions = []
-    for user_id in data[0][1]:
-        profile = line_bot_api.get_profile(user_id)
-        display_name = profile.display_name
-        champions.append(display_name)
-    contents["body"]["contents"][1]["contents"][0]["contents"][1]["text"] = "\n".join(
-        champions
-    )
-    contents["body"]["contents"][1]["contents"][1]["contents"][1][
-        "text"
-    ] = f"{data[0][0]}"
-
     user_count = count_all_users(data=data)
-    for each in data:
-        count = each[0]
-        users = len(each[1])
+    for count, users in data:
         try:
-            percentage = users / user_count * 100
+            percentage = len(users) / user_count * 100
         except ZeroDivisionError:
             percentage = 0
         template = {
@@ -105,10 +91,11 @@ def complete_result(data: List[Tuple[int, List[str]]]) -> FlexSendMessage:
             "contents": [
                 {
                     "type": "text",
-                    "text": f"{count}題 ({percentage}%)",
+                    "text": f"{count}題 ({len(users)}人，佔{round(percentage, 4)}%)",
                     "size": "xs",
                     "margin": "md",
                 },
+                {"type": "text", "text": ", ".join(users), "size": "xxs", "wrap": True},
                 {
                     "type": "box",
                     "layout": "vertical",
@@ -128,6 +115,13 @@ def complete_result(data: List[Tuple[int, List[str]]]) -> FlexSendMessage:
             ],
         }
         contents["body"]["contents"].append(template)
+
+    contents["body"]["contents"][1]["contents"][0]["contents"][1]["text"] = "\n".join(
+        data[0][1]
+    )
+    contents["body"]["contents"][1]["contents"][1]["contents"][1][
+        "text"
+    ] = f"{data[0][0]}"
     message = FlexSendMessage(alt_text="本週AC狀況", contents=contents)
     return message
 

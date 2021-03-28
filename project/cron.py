@@ -8,15 +8,13 @@ import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from line import flex_template
+from line import actions, flex_template
 from linebot import LineBotApi
-from linebot.models import *
 
 cron = APIRouter()
 line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
-@cron.get("/init", response_class=JSONResponse)
 async def init() -> JSONResponse:
     """Init Cron jobs
 
@@ -39,13 +37,13 @@ async def init() -> JSONResponse:
 
 def week_check(
     replyable: bool = False,
-):
+) -> None:
     """Week check LeetCode status
 
     Args:
         replyable (bool, optional): If the message can use reply. Defaults to False.
     """
-    update_user_profile()
+    actions.update_user_profile()
     user_status, undo_users = fetch_all_leetcode(replyable=replyable)
     sorted_status = sort_complete_status(user_status=user_status)
 
@@ -143,27 +141,28 @@ def sort_complete_status(user_status: dict) -> List[Tuple[int, List[str]]]:
     for user_id, user_data in user_status.items():
         new_ac_count = len(user_data["result"]["new_ac"])
         if new_ac_count in count_user_pairs:
-            count_user_pairs[new_ac_count].append(user_id)
+            count_user_pairs[new_ac_count].append(user_data["display_name"])
         else:
-            count_user_pairs[new_ac_count] = [user_id]
+            count_user_pairs[new_ac_count] = [user_data["display_name"]]
     sorted_status = sorted(count_user_pairs.items(), key=lambda x: -x[0])
     return sorted_status
 
 
-def update_user_debit(user_id: str, debit: int):
+def update_user_debit(user_id: str, debit: int) -> None:
     """更新使用者負債
 
     Args:
         user_id (str): 使用者 LINE ID
         debit (int): 負債金額
     """
-    debit -= check_last_week(user_id=user_id)
+    current_date = datetime.strftime(datetime.now(), "%Y/%m/%d")
+    debit -= check_last_week(user_id=user_id, current_date=current_date)
     user_data = config.db.user.find_one({"user_id": user_id})
     user_data["debit"] -= debit
     config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
 
 
-def check_last_week(user_id: str) -> int:
+def check_last_week(user_id: str, current_date: str) -> int:
     """檢查上週補全進度
 
     Args:
@@ -175,6 +174,8 @@ def check_last_week(user_id: str) -> int:
     debit = 0
     question_data = config.db.questions.find_one({})
     last_week = question_data["last_week"]
+    if current_date == last_week:
+        return debit
     last_week_questions = question_data["history"][last_week]["questions"]["required"]
 
     user_data = question_data["history"][last_week]["result"][user_id]["result"]
@@ -186,14 +187,3 @@ def check_last_week(user_id: str) -> int:
         question_data["history"][last_week]["result"][user_id]["result"] = work_status
         config.db.questions.update_one({}, {"$set": question_data})
     return debit
-
-
-def update_user_profile():
-    """更新使用者名稱"""
-    for user_data in config.db.user.find({}):
-        user_id = user_data["user_id"]
-        profile = line_bot_api.get_profile(user_id)
-        display_name = profile.display_name
-
-        user_data["display_name"] = display_name
-        config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
