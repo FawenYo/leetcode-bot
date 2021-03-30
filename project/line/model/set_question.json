@@ -26,22 +26,20 @@
                 "contents": [
                     {
                         "type": "box",
-                        "layout": "baseline",
+                        "layout": "horizontal",
                         "spacing": "sm",
                         "contents": [
                             {
                                 "type": "text",
                                 "text": "必寫",
-                                "color": "#FF0000",
+                                "color": "#000000",
                                 "size": "sm",
                                 "flex": 1
                             },
                             {
-                                "type": "text",
-                                "text": "0. example",
-                                "wrap": true,
-                                "color": "#666666",
-                                "size": "sm",
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [],
                                 "flex": 5
                             }
                         ]
@@ -51,7 +49,7 @@
                     },
                     {
                         "type": "box",
-                        "layout": "baseline",
+                        "layout": "horizontal",
                         "spacing": "sm",
                         "contents": [
                             {
@@ -62,11 +60,9 @@
                                 "flex": 1
                             },
                             {
-                                "type": "text",
-                                "text": "0. example",
-                                "wrap": true,
-                                "color": "#666666",
-                                "size": "sm",
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [],
                                 "flex": 5
                             }
                         ]

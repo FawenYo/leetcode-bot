@@ -25,18 +25,60 @@ def set_question(
         contents = json.load(json_file)
 
     contents["body"]["contents"][0]["text"] = f"{date_status}題目"
-    contents["body"]["contents"][1]["contents"][0]["contents"][1]["text"] = "\n".join(
-        required_questions
-    )
+    for question_data in required_questions:
+        question_title, question_slug = question_data.split("__||__")
+        if "未完成" in question_title:
+            text_color = "#ff0000"
+        elif "已完成" in question_title:
+            text_color = "#009100"
+        else:
+            text_color = "#666666"
+        temp = {
+            "type": "text",
+            "text": question_title,
+            "wrap": True,
+            "color": text_color,
+            "size": "sm",
+            "decoration": "underline",
+            "action": {
+                "type": "uri",
+                "label": "action",
+                "uri": f"https://leetcode.com/problems/{question_slug}/",
+            },
+        }
+        contents["body"]["contents"][1]["contents"][0]["contents"][1][
+            "contents"
+        ].append(temp)
 
-    contents["body"]["contents"][1]["contents"][2]["contents"][1]["text"] = "\n".join(
-        optional_questions
-    )
+    for question_data in optional_questions:
+        question_title, question_slug = question_data.split("__||__")
+        if "未完成" in question_title:
+            text_color = "#ff0000"
+        elif "已完成" in question_title:
+            text_color = "#009100"
+        else:
+            text_color = "#666666"
+        temp = {
+            "type": "text",
+            "text": question_title,
+            "wrap": True,
+            "color": text_color,
+            "size": "sm",
+            "decoration": "underline",
+            "action": {
+                "type": "uri",
+                "label": "action",
+                "uri": f"https://leetcode.com/problems/{question_slug}/",
+            },
+        }
+        contents["body"]["contents"][1]["contents"][2]["contents"][1][
+            "contents"
+        ].append(temp)
     end_date_format = datetime.strptime(end_date, "%Y/%m/%d")
     contents["footer"]["contents"][0][
         "text"
     ] = f"截止日期：{end_date_format.month}/{end_date_format.day}（{weekday_text_map[end_date_format.weekday()]}）18:00:00"
-    message = FlexSendMessage(alt_text="本週題目", contents=contents)
+    message = FlexSendMessage(alt_text=f"{date_status}題目", contents=contents)
     return message
 
 

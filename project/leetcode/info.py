@@ -1,6 +1,6 @@
 import copy
 import sys
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import requests
 
@@ -8,21 +8,24 @@ sys.path.append(".")
 import config
 
 
-def find_question(question_name: str) -> int:
+def find_question(question_name: str) -> Tuple[int, str]:
     """Check if LeetCode question exist.
 
     Args:
         question_name (str): LeetCode question name.
 
     Returns:
-        int: question id. -1 for not exist
+        Tuple: (question id, question_slug)
     """
     response = requests.get("https://leetcode.com/api/problems/all/").json()
     for question in response["stat_status_pairs"]:
         question_title = question["stat"]["question__title"]
         if question_title == question_name:
-            return question["stat"]["question_id"]
-    return -1
+            return (
+                question["stat"]["question_id"],
+                question["stat"]["question__title_slug"],
+            )
+    return (-1, "Null")
 
 
 def status_crawler(LEETCODE_SESSION: str, question_name: str) -> bool:
@@ -62,13 +65,18 @@ def find_question_status(LEETCODE_SESSION: str, questions: List[str]) -> List[st
     ).json()
     for question in response["stat_status_pairs"]:
         question_title = question["stat"]["question__title"]
+        question__title_slug = question["stat"]["question__title_slug"]
         question_id = question["stat"]["question_id"]
         if f"{question_id}. {question_title}" in questions:
             question_index = questions.index(f"{question_id}. {question_title}")
             if question["status"] == "ac":
-                questions[question_index] = f"{question_id}. {question_title} (已完成)"
+                questions[
+                    question_index
+                ] = f"{question_id}. {question_title} (已完成)__||__{question__title_slug}"
             else:
-                questions[question_index] = f"{question_id}. {question_title} (未完成)"
+                questions[
+                    question_index
+                ] = f"{question_id}. {question_title} (未完成)__||__{question__title_slug}"
     return questions
 
 

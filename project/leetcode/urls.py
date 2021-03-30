@@ -91,20 +91,28 @@ async def set_week_question(param: SetQuestion) -> JSONResponse:
             optional_questions = param.optional_questions
 
             for index, question_name in enumerate(required_questions):
-                question_id = info.find_question(question_name=question_name)
+                (question_id, question_slug) = info.find_question(
+                    question_name=question_name
+                )
                 if question_id == -1:
                     question_exist = False
                     no_questions.append(question_name)
                 else:
-                    required_questions[index] = f"{question_id}. {question_name}"
+                    required_questions[
+                        index
+                    ] = f"{question_id}. {question_name}__||__{question_slug}"
 
             for index, question_name in enumerate(optional_questions):
-                question_id = info.find_question(question_name=question_name)
+                (question_id, question_slug) = info.find_question(
+                    question_name=question_name
+                )
                 if question_id == -1:
                     question_exist = False
                     no_questions.append(question_name)
                 else:
-                    optional_questions[index] = f"{question_id}. {question_name}"
+                    optional_questions[
+                        index
+                    ] = f"{question_id}. {question_name}__||__{question_slug}"
 
             if question_exist:
                 question_data = config.db.questions.find_one({})
