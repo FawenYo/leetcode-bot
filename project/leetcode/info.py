@@ -67,8 +67,10 @@ def find_question_status(LEETCODE_SESSION: str, questions: List[str]) -> List[st
         question_title = question["stat"]["question__title"]
         question__title_slug = question["stat"]["question__title_slug"]
         question_id = question["stat"]["question_id"]
-        if f"{question_id}. {question_title}" in questions:
-            question_index = questions.index(f"{question_id}. {question_title}")
+        if f"{question_id}. {question_title}__||__{question__title_slug}" in questions:
+            question_index = questions.index(
+                f"{question_id}. {question_title}__||__{question__title_slug}"
+            )
             if question["status"] == "ac":
                 questions[
                     question_index
