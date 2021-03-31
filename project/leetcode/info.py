@@ -103,9 +103,13 @@ def current_leetcode_status(LEETCODE_SESSION: str) -> Dict[str, bool]:
     for question in response["stat_status_pairs"]:
         solved = False
         question_title = question["stat"]["question__title"]
+        question__title_slug = question["stat"]["question__title_slug"]
+        question_id = question["stat"]["question_id"]
         if question["status"] == "ac":
             solved = True
-        user_stauts[question_title] = solved
+        user_stauts[
+            f"{question_id}. {question_title}__||__{question__title_slug}"
+        ] = solved
     return user_stauts
 
 

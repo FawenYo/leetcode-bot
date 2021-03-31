@@ -85,12 +85,6 @@ def fetch_all_leetcode(
     required_questions = question_data["history"][check_date]["questions"]["required"]
     optional_questions = question_data["history"][check_date]["questions"]["optional"]
 
-    # Remove question ID
-    for index, value in enumerate(required_questions):
-        required_questions[index] = value.split(". ")[1]
-    for index, value in enumerate(optional_questions):
-        optional_questions[index] = value.split(". ")[1]
-
     def fetch_user_result(user_data: dict):
         user_id = user_data["user_id"]
         display_name = user_data["display_name"]
