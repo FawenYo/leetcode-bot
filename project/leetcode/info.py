@@ -63,6 +63,8 @@ def find_question_status(LEETCODE_SESSION: str, questions: List[str]) -> List[st
     response = requests.get(
         "https://leetcode.com/api/problems/all/", cookies=cookies
     ).json()
+    if not response["user_name"]:
+        return []
     for question in response["stat_status_pairs"]:
         question_title = question["stat"]["question__title"]
         question__title_slug = question["stat"]["question__title_slug"]

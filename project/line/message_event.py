@@ -49,12 +49,24 @@ def handle_message(event):
                         LEETCODE_SESSION=LEETCODE_SESSION,
                         questions=question_data["latest"]["optional"],
                     )
-                    end_date = question_data["latest"]["end_date"]
-                    messages = flex_template.set_question(
-                        required_questions=required_questions,
-                        optional_questions=optional_questions,
-                        end_date=end_date,
-                    )
+                    if not required_questions or not optional_questions:
+                        user_data["account"]["LeetCode"]["LEETCODE_SESSION"] = ""
+                        config.db.user.update_one(
+                            {"_id": user_data["_id"]}, {"$set": user_data}
+                        )
+                        messages = [
+                            TextSendMessage(text="LeetCode連線已過期，請重新再登入！"),
+                            flex_template.info(
+                                user_id=user_id, debit=user_data["debit"]
+                            ),
+                        ]
+                    else:
+                        end_date = question_data["latest"]["end_date"]
+                        messages = flex_template.set_question(
+                            required_questions=required_questions,
+                            optional_questions=optional_questions,
+                            end_date=end_date,
+                        )
                 else:
                     messages = TextSendMessage(f"尚未綁定 LeetCode 帳號，請先綁定！")
             else:
