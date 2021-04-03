@@ -27,7 +27,7 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
     Returns:
         JSONResponse: LeetCode login result.
     """
-    cookies = {"LEETCODE_SESSION": param.LEETCODE_SESSION, "csrftoken": param.cstftoken}
+    cookies = {"LEETCODE_SESSION": param.LEETCODE_SESSION, "csrftoken": param.csrftoken}
     response = requests.get(
         "https://leetcode.com/api/problems/all/", cookies=cookies
     ).json()
@@ -37,7 +37,7 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
             user_data["account"]["LeetCode"][
                 "LEETCODE_SESSION"
             ] = param.LEETCODE_SESSION
-            user_data["account"]["LeetCode"]["csrftoken"] = param.cstftoken
+            user_data["account"]["LeetCode"]["csrftoken"] = param.csrftoken
             user_data["account"]["LeetCode"]["has_logined"] = True
             config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
             message = {"status": "success", "message": "已成功登入帳號！"}
