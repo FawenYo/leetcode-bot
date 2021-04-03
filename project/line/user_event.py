@@ -29,7 +29,9 @@ def handle_follow(event):
         "display_name": display_name,
         "debit": 0,
         "add_time": now,
-        "account": {"LeetCode": {"LEETCODE_SESSION": "", "has_logined": False}},
+        "account": {
+            "LeetCode": {"LEETCODE_SESSION": "", "csrftoken": "", "has_logined": False}
+        },
         "LeetCode": {},
     }
     config.db.user.insert_one(data)

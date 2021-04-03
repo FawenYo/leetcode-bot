@@ -31,16 +31,19 @@ def handle_postback(event):
         if history_date in question_data["history"]:
             user_data = config.db.user.find_one({"user_id": user_id})
             LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
+            csrftoken = user_data["account"]["LeetCode"]["csrftoken"]
             if LEETCODE_SESSION != "":
                 question_data = config.db.questions.find_one({})
                 required_questions = info.find_question_status(
                     LEETCODE_SESSION=LEETCODE_SESSION,
+                    csrftoken=csrftoken,
                     questions=question_data["history"][history_date]["questions"][
                         "required"
                     ],
                 )
                 optional_questions = info.find_question_status(
                     LEETCODE_SESSION=LEETCODE_SESSION,
+                    csrftoken=csrftoken,
                     questions=question_data["history"][history_date]["questions"][
                         "optional"
                     ],

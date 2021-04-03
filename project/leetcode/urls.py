@@ -27,7 +27,7 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
     Returns:
         JSONResponse: LeetCode login result.
     """
-    cookies = {"LEETCODE_SESSION": param.LEETCODE_SESSION}
+    cookies = {"LEETCODE_SESSION": param.LEETCODE_SESSION, "csrftoken": param.cstftoken}
     response = requests.get(
         "https://leetcode.com/api/problems/all/", cookies=cookies
     ).json()
@@ -37,6 +37,7 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
             user_data["account"]["LeetCode"][
                 "LEETCODE_SESSION"
             ] = param.LEETCODE_SESSION
+            user_data["account"]["LeetCode"]["csrftoken"] = param.cstftoken
             user_data["account"]["LeetCode"]["has_logined"] = True
             config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
             message = {"status": "success", "message": "已成功登入帳號！"}
@@ -48,28 +49,6 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
             message = {"status": "failed", "message": "請先加入 LINE Bot 好友！"}
     else:
         message = {"status": "failed", "message": "查無 LeetCode 帳號！"}
-
-    return JSONResponse(content=message)
-
-
-@leetcode.get("/api/leetcode/getdata", response_class=JSONResponse)
-async def get_leetcode_status(user_id: str) -> JSONResponse:
-    """Check if user already login to LeetCode.
-
-    Args:
-        user_id (str): User's LINE ID.
-
-    Returns:
-        JSONResponse: Login history data.
-    """
-    user_data = config.db.user.find_one({"user_id": user_id})
-    if user_data:
-        if user_data["account"]["LeetCode"]["LEETCODE_SESSION"] == "":
-            message = {"status": "success", "message": "尚未紀錄 LeetCode 帳號"}
-        else:
-            message = {"status": "failed", "message": "已經登入過 LeetCode 帳號！"}
-    else:
-        message = {"status": "failed", "message": "請先加入 LINE Bot 好友！"}
 
     return JSONResponse(content=message)
 

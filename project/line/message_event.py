@@ -32,6 +32,10 @@ def handle_message(event):
                 user_data = config.db.user.find_one({"user_id": user_id})
                 debit = user_data["debit"]
                 messages = flex_template.info(user_id=user_id, debit=debit)
+            elif user_message == "登入":
+                messages = TextSendMessage(
+                    text=f"登入網址：\nhttps://liff.line.me/1655767329-J571PLN4"
+                )
             elif user_message == "查看結果":
                 messages = cron.week_check(replyable=True)
             elif user_message == "查看題目":
@@ -39,14 +43,17 @@ def handle_message(event):
             elif user_message == "本週題目":
                 user_data = config.db.user.find_one({"user_id": user_id})
                 LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
+                csrftoken = user_data["account"]["LeetCode"]["csrftoken"]
                 if LEETCODE_SESSION != "":
                     question_data = config.db.questions.find_one({})
                     required_questions = info.find_question_status(
                         LEETCODE_SESSION=LEETCODE_SESSION,
+                        csrftoken=csrftoken,
                         questions=question_data["latest"]["required"],
                     )
                     optional_questions = info.find_question_status(
                         LEETCODE_SESSION=LEETCODE_SESSION,
+                        csrftoken=csrftoken,
                         questions=question_data["latest"]["optional"],
                     )
                     if not required_questions or not optional_questions:

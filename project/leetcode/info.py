@@ -28,17 +28,18 @@ def find_question(question_name: str) -> Tuple[int, str]:
     return (-1, "Null")
 
 
-def status_crawler(LEETCODE_SESSION: str, question_name: str) -> bool:
+def status_crawler(LEETCODE_SESSION: str, csrftoken: str, question_name: str) -> bool:
     """Check if question solved
 
     Args:
         LEETCODE_SESSION (str): User's LeetCode session.
+        csrftoken (str): User's LeetCode csrf_token.
         question_name (str): LeetCode question name.
 
     Returns:
         bool: Solved or not.
     """
-    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION}
+    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
     response = requests.get(
         "https://leetcode.com/api/problems/all/", cookies=cookies
     ).json()
@@ -53,13 +54,18 @@ def status_crawler(LEETCODE_SESSION: str, question_name: str) -> bool:
 def update_status(user_data):
     """Update user's LeetCode status"""
     LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
-    latest_status = current_leetcode_status(LEETCODE_SESSION=LEETCODE_SESSION)
+    csrftoken = user_data["account"]["LeetCode"]["csrftoken"]
+    latest_status = current_leetcode_status(
+        LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken
+    )
     user_data["LeetCode"] = latest_status
     config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
 
 
-def find_question_status(LEETCODE_SESSION: str, questions: List[str]) -> List[str]:
-    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION}
+def find_question_status(
+    LEETCODE_SESSION: str, csrftoken: str, questions: List[str]
+) -> List[str]:
+    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
     response = requests.get(
         "https://leetcode.com/api/problems/all/", cookies=cookies
     ).json()
@@ -84,22 +90,22 @@ def find_question_status(LEETCODE_SESSION: str, questions: List[str]) -> List[st
     return questions
 
 
-def current_leetcode_status(LEETCODE_SESSION: str) -> Dict[str, bool]:
+def current_leetcode_status(LEETCODE_SESSION: str, csrftoken: str) -> Dict[str, bool]:
     """Fetch current LeetCode question status
 
     Args:
         LEETCODE_SESSION (str): User's LeetCode session.
+        csrftoken (str): User's LeetCode csrf_token.
 
     Returns:
         Dict[str, bool]: User's LeetCode question status.
     """
     user_stauts = {}
 
-    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION}
+    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
     response = requests.get(
         "https://leetcode.com/api/problems/all/", cookies=cookies
     ).json()
-
     for question in response["stat_status_pairs"]:
         solved = False
         question_title = question["stat"]["question__title"]
@@ -134,7 +140,8 @@ def check_work_status(
     user_data = config.db.user.find_one({"user_id": user_id})
     old_status = user_data["LeetCode"]
     latest_status = current_leetcode_status(
-        LEETCODE_SESSION=user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
+        LEETCODE_SESSION=user_data["account"]["LeetCode"]["LEETCODE_SESSION"],
+        csrftoken=user_data["account"]["LeetCode"]["csrftoken"],
     )
     # shallow copy to prevent affect others
     copy_required = copy.copy(required_questions)

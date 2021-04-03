@@ -142,3 +142,4 @@ dmypy.json
 *.key
 
 question.py
+test.py

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class GetLeetCodeStatus(BaseModel):
     user_id: str
+    cstftoken: str
     LEETCODE_SESSION: str
 
 
