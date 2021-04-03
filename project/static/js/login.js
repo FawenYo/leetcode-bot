@@ -1,7 +1,11 @@
 let user_id = "";
 
 window.onload = () => {
-    initializeLiff("1655767329-J571PLN4");
+    if (!localStorage["user_id"]) {
+        initializeLiff("1655767329-J571PLN4");
+    } else {
+        user_id = localStorage["user_id"];
+    }
 }
 
 function initializeLiff(myLiffId) {
@@ -24,6 +28,7 @@ function initializeApp() {
         liff.getProfile()
             .then((profile) => {
                 user_id = profile.userId;
+                localStorage["user_id"] = user_id;
             })
             .catch((err) => {
                 console.log(err);
