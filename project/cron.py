@@ -37,6 +37,13 @@ async def init() -> JSONResponse:
     return JSONResponse(content=message)
 
 
+@cron.get("/start", response_class=JSONResponse)
+async cron_start() -> JSONResponse:
+    week_check()
+    message = {"stauts": "success", "message": "已開始任務！"}
+    return JSONResponse(content=message)
+
+
 def week_check(
     replyable: bool = False,
 ) -> None:
