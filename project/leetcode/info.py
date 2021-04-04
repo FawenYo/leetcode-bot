@@ -106,6 +106,7 @@ def current_leetcode_status(LEETCODE_SESSION: str, csrftoken: str) -> Dict[str, 
     response = requests.get(
         "https://leetcode.com/api/problems/all/", cookies=cookies
     ).json()
+    user_stauts["user_name"] = response["user_name"]
     for question in response["stat_status_pairs"]:
         solved = False
         question_title = question["stat"]["question__title"]
@@ -143,6 +144,7 @@ def check_work_status(
         LEETCODE_SESSION=user_data["account"]["LeetCode"]["LEETCODE_SESSION"],
         csrftoken=user_data["account"]["LeetCode"]["csrftoken"],
     )
+    user_name = latest_status["user_name"]
     # shallow copy to prevent affect others
     copy_required = copy.copy(required_questions)
     for key, value in latest_status.items():
@@ -164,6 +166,7 @@ def check_work_status(
                     pass
     if len(copy_required) == 0:
         return {
+            "user_name": user_name,
             "complete": True,
             "undo": copy_required,
             "new_ac": new_ac,
@@ -175,6 +178,7 @@ def check_work_status(
         else:
             debit = 40 * len(copy_required)
         return {
+            "user_name": user_name,
             "complete": False,
             "undo": copy_required,
             "new_ac": new_ac,

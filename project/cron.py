@@ -46,12 +46,13 @@ def week_check(
         replyable (bool, optional): If the message can use reply. Defaults to False.
     """
     actions.update_user_profile()
-    user_status, undo_users = fetch_all_leetcode(replyable=replyable)
+    user_status, undo_users, unbound_users = fetch_all_leetcode(replyable=replyable)
     sorted_status = sort_complete_status(user_status=user_status)
 
     message = [
         flex_template.complete_result(data=sorted_status),
         flex_template.undo_result(data=undo_users),
+        flex_template.unbound_users(data=unbound_users),
     ]
     if replyable:
         return message
@@ -78,6 +79,7 @@ def fetch_all_leetcode(
     """
     user_status = {}
     undo_users = []
+    unbound_users = []
     threads: List[threading.Thread] = []
 
     question_data = config.db.questions.find_one({})
@@ -98,6 +100,14 @@ def fetch_all_leetcode(
             "result": work_status,
         }
 
+        if not work_status["user_name"]:
+            unbound_users.append(
+                {
+                    "user_id": user_id,
+                    "user": display_name,
+                }
+            )
+
         if not work_status["complete"]:
             undo_users.append(
                 {
@@ -107,9 +117,7 @@ def fetch_all_leetcode(
                 }
             )
             if not replyable:
-                update_user_debit(
-                    user_id=user_data["user_id"], debit=work_status["debit"]
-                )
+                update_user_debit(user_id=user_id, debit=work_status["debit"])
 
     # Multi-threading
     for user_data in config.db.user.find():
@@ -125,7 +133,7 @@ def fetch_all_leetcode(
         # Update check date
         question_data["latest"]["check_date"] = question_data["latest"]["end_date"]
         config.db.questions.update_one({}, {"$set": question_data})
-    return (user_status, undo_users)
+    return (user_status, undo_users, unbound_users)
 
 
 def sort_complete_status(user_status: dict) -> List[Tuple[int, List[str]]]:

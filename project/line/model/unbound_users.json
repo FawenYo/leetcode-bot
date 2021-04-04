@@ -1,0 +1,16 @@
+{
+    "type": "bubble",
+    "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+            {
+                "type": "text",
+                "text": "帳號綁定過期名單：",
+                "weight": "bold",
+                "size": "md",
+                "align": "center"
+            }
+        ]
+    }
+}

@@ -203,6 +203,31 @@ def undo_result(data: List[dict]) -> FlexSendMessage:
     return message
 
 
+def unbound_users(data: List[dict]) -> FlexSendMessage:
+    """Unbound users
+
+    Args:
+        data (List[dict]): Unbound users' data.
+
+    Returns:
+        FlexSendMessage: 帳號綁定狀況
+    """
+    with open("line/model/unbound_users.json") as json_file:
+        contents = json.load(json_file)
+    for each in data:
+        template = {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+                {"type": "text", "text": each["user"]},
+            ],
+            "margin": "md",
+        }
+        contents["body"]["contents"].append(template)
+    message = FlexSendMessage(alt_text="帳號綁定狀況", contents=contents)
+    return message
+
+
 def count_all_users(data: List[Tuple[int, List[str]]]) -> int:
     """Count all users
 
