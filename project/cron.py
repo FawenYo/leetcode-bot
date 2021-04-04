@@ -15,14 +15,17 @@ line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
 @cron.get("/start", response_class=JSONResponse)
-async def cron_start() -> JSONResponse:
+async def cron_start(token: str) -> JSONResponse:
     """Start Cron Jobs
 
     Returns:
         JSONResponse: Cron job status
     """
-    week_check()
-    message = {"stauts": "success", "message": "已完成任務！"}
+    if token == config.TOKEN:
+        week_check()
+        message = {"stauts": "success", "message": "已完成任務！"}
+    else:
+        message = {"status": "error", "message": "Token錯誤！"}
     return JSONResponse(content=message)
 
 
@@ -152,14 +155,13 @@ def update_user_debit(user_id: str, debit: int) -> None:
         user_id (str): 使用者 LINE ID
         debit (int): 負債金額
     """
-    current_date = datetime.strftime(datetime.now(), "%Y/%m/%d")
-    debit -= check_last_week(user_id=user_id, current_date=current_date)
+    debit += check_last_week(user_id=user_id)
     user_data = config.db.user.find_one({"user_id": user_id})
     user_data["debit"] -= debit
     config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
 
 
-def check_last_week(user_id: str, current_date: str) -> int:
+def check_last_week(user_id: str) -> int:
     """檢查上週補全進度
 
     Args:
@@ -171,24 +173,24 @@ def check_last_week(user_id: str, current_date: str) -> int:
     debit = 0
     question_data = config.db.questions.find_one({})
     last_week = question_data["last_week"]
-    if current_date == last_week:
-        return debit
-    last_week_required_questions = question_data["history"][last_week]["questions"][
-        "required"
-    ]
-    last_week_optional_questions = question_data["history"][last_week]["questions"][
-        "optional"
-    ]
 
     user_data = question_data["history"][last_week]["result"][user_id]["result"]
+    # He/She has not complete last week's work
     if user_data["debit"] > 0:
+        # Last week's questions
+        last_week_required_questions = question_data["history"][last_week]["questions"][
+            "required"
+        ]
+        last_week_optional_questions = question_data["history"][last_week]["questions"][
+            "optional"
+        ]
         work_status = leetcode.info.check_work_status(
             user_id=user_id,
             required_questions=last_week_required_questions,
             optinoal_questions=last_week_optional_questions,
             first_week=False,
         )
-        debit = (user_data["debit"] - work_status["debit"]) / 2
+        debit = work_status["debit"]
         question_data["history"][last_week]["result"][user_id]["result"] = work_status
         config.db.questions.update_one({}, {"$set": question_data})
     return debit
