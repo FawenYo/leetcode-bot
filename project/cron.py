@@ -2,8 +2,6 @@ import threading
 from datetime import datetime
 from typing import List, Tuple
 
-import pytz
-from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from linebot import LineBotApi
@@ -16,31 +14,15 @@ cron = APIRouter()
 line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
-@cron.get("/init", response_class=JSONResponse)
-async def init() -> JSONResponse:
-    """Init Cron jobs
-
-    Returns:
-        JSONResponse: Job status
-    """
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        week_check,
-        "cron",
-        day_of_week="sun",
-        hour=18,
-        minute=00,
-        second=00,
-        timezone=pytz.timezone("Asia/Taipei"),
-    )
-    message = {"stauts": "success", "message": "已開始定時任務！"}
-    return JSONResponse(content=message)
-
-
 @cron.get("/start", response_class=JSONResponse)
 async def cron_start() -> JSONResponse:
+    """Start Cron Jobs
+
+    Returns:
+        JSONResponse: Cron job status
+    """
     week_check()
-    message = {"stauts": "success", "message": "已開始任務！"}
+    message = {"stauts": "success", "message": "已完成任務！"}
     return JSONResponse(content=message)
 
 
