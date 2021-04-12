@@ -8,6 +8,24 @@ sys.path.append(".")
 import config
 
 
+def login(LEETCODE_SESSION: str = "", csrftoken: str = "") -> Tuple[bool, dict]:
+    """Fetch user's LeetCode data
+
+    Args:
+        LEETCODE_SESSION (str, optional): LEETCODE_SESSION. Defaults to "".
+        csrftoken (str, optional): csrftoken. Defaults to "".
+
+    Returns:
+        Tuple[bool, dict]: [description]
+    """
+    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
+    response = requests.get(
+        "https://leetcode.com/api/problems/all/", cookies=cookies
+    ).json()
+    is_login = not not response["user_name"]
+    return is_login, response
+
+
 def find_question(question_name: str) -> Tuple[int, str]:
     """Check if LeetCode question exist.
 
@@ -15,9 +33,10 @@ def find_question(question_name: str) -> Tuple[int, str]:
         question_name (str): LeetCode question name.
 
     Returns:
-        Tuple: (question id, question_slug)
+        Tuple: (question id, question_url)
     """
-    response = requests.get("https://leetcode.com/api/problems/all/").json()
+    is_login, response = login()
+
     for question in response["stat_status_pairs"]:
         question_title = question["stat"]["question__title"]
         if question_title == question_name:
@@ -28,30 +47,7 @@ def find_question(question_name: str) -> Tuple[int, str]:
     return (-1, "Null")
 
 
-def status_crawler(LEETCODE_SESSION: str, csrftoken: str, question_name: str) -> bool:
-    """Check if question solved
-
-    Args:
-        LEETCODE_SESSION (str): User's LeetCode session.
-        csrftoken (str): User's LeetCode csrf_token.
-        question_name (str): LeetCode question name.
-
-    Returns:
-        bool: Solved or not.
-    """
-    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
-    response = requests.get(
-        "https://leetcode.com/api/problems/all/", cookies=cookies
-    ).json()
-    for question in response["stat_status_pairs"]:
-        question_title = question["stat"]["question__title"]
-        if question_title == question_name:
-            if question["status"] == "ac":
-                return True
-    return False
-
-
-def update_status(user_data):
+def update_leetcode_status(user_data):
     """Update user's LeetCode status"""
     LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
     csrftoken = user_data["account"]["LeetCode"]["csrftoken"]
@@ -65,11 +61,8 @@ def update_status(user_data):
 def find_question_status(
     LEETCODE_SESSION: str, csrftoken: str, questions: List[str]
 ) -> List[str]:
-    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
-    response = requests.get(
-        "https://leetcode.com/api/problems/all/", cookies=cookies
-    ).json()
-    if not response["user_name"]:
+    is_login, response = login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
+    if not is_login:
         return []
     for question in response["stat_status_pairs"]:
         question_title = question["stat"]["question__title"]
@@ -79,14 +72,16 @@ def find_question_status(
             question_index = questions.index(
                 f"{question_id}. {question_title}__||__{question__title_slug}"
             )
+
+            # Complete status text
+            complete_text = "(未完成)"
             if question["status"] == "ac":
-                questions[
-                    question_index
-                ] = f"{question_id}. {question_title} (已完成)__||__{question__title_slug}"
-            else:
-                questions[
-                    question_index
-                ] = f"{question_id}. {question_title} (未完成)__||__{question__title_slug}"
+                complete_text = "(已完成)"
+
+            # Use __||__ to split question's info and url
+            questions[
+                question_index
+            ] = f"{question_id}. {question_title} {complete_text}__||__{question__title_slug}"
     return questions
 
 
@@ -100,13 +95,13 @@ def current_leetcode_status(LEETCODE_SESSION: str, csrftoken: str) -> Dict[str, 
     Returns:
         Dict[str, bool]: User's LeetCode question status.
     """
-    user_stauts = {}
+    leetcode_status = {}
 
-    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
-    response = requests.get(
-        "https://leetcode.com/api/problems/all/", cookies=cookies
-    ).json()
-    user_stauts["user_name"] = response["user_name"]
+    is_login, response = login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
+
+    # LeetCode user name
+    leetcode_status["user_name"] = response["user_name"]
+
     for question in response["stat_status_pairs"]:
         solved = False
         question_title = question["stat"]["question__title"]
@@ -114,10 +109,11 @@ def current_leetcode_status(LEETCODE_SESSION: str, csrftoken: str) -> Dict[str, 
         question_id = question["stat"]["question_id"]
         if question["status"] == "ac":
             solved = True
-        user_stauts[
+        # Use __||__ to split question's info and url
+        leetcode_status[
             f"{question_id}. {question_title}__||__{question__title_slug}"
         ] = solved
-    return user_stauts
+    return leetcode_status
 
 
 def check_work_status(
@@ -149,14 +145,14 @@ def check_work_status(
     copy_required = copy.copy(required_questions)
     for key, value in latest_status.items():
         if value == True:
-            # 必選
+            # Required questions
             if key in copy_required:
                 del copy_required[copy_required.index(key)]
                 new_ac.append(key)
-            # 選寫
+            # Optional questions
             elif key in optional_questions:
                 new_ac.append(key)
-            # 其他題目
+            # Other questions
             else:
                 try:
                     before_status = old_status[key]
@@ -164,10 +160,10 @@ def check_work_status(
                         new_ac.append(key)
                 except KeyError:
                     pass
+    # Complete all required questions
     if len(copy_required) == 0:
         return {
             "user_name": user_name,
-            "complete": True,
             "undo": copy_required,
             "new_ac": new_ac,
             "debit": 0,
@@ -179,7 +175,6 @@ def check_work_status(
             debit = 40 * len(copy_required)
         return {
             "user_name": user_name,
-            "complete": False,
             "undo": copy_required,
             "new_ac": new_ac,
             "debit": debit,

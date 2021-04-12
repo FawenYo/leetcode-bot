@@ -16,11 +16,15 @@ line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 @cron.get("/start", response_class=JSONResponse)
 async def cron_start(token: str) -> JSONResponse:
-    """Start Cron Jobs
+    """Start cron jobs
+
+    Args:
+        token (str): API token
 
     Returns:
-        JSONResponse: Cron job status
+        JSONResponse: Job status
     """
+    # Check API token
     if token == config.TOKEN:
         week_check()
         message = {"stauts": "success", "message": "已完成任務！"}
@@ -37,7 +41,6 @@ def week_check(
     Args:
         replyable (bool, optional): If the message can use reply. Defaults to False.
     """
-    actions.update_user_profile()
     user_status, undo_users, unbound_users = fetch_all_leetcode(replyable=replyable)
     sorted_status = sort_complete_status(user_status=user_status)
 
@@ -49,11 +52,15 @@ def week_check(
     if replyable:
         return message
     else:
+        # Push week result to LINE group
         line_bot_api.push_message(
             to="C39d4dd7d542f3ce98cc69402a3dda664", messages=message
         )
+        # Update user's LINE display_name
+        actions.update_user_profile()
+        # Update user's LeetCode status
         for user_data in config.db.user.find({}):
-            leetcode.info.update_status(user_data=user_data)
+            leetcode.info.update_leetcode_status(user_data=user_data)
 
 
 def fetch_all_leetcode(
@@ -92,6 +99,7 @@ def fetch_all_leetcode(
             "result": work_status,
         }
 
+        # Unbound LeetCode account
         if not work_status["user_name"]:
             unbound_users.append(
                 {
@@ -100,7 +108,8 @@ def fetch_all_leetcode(
                 }
             )
 
-        if not work_status["complete"]:
+        # Undo users
+        if work_status["undo"]:
             undo_users.append(
                 {
                     "user_id": user_id,
@@ -108,10 +117,10 @@ def fetch_all_leetcode(
                     "debit": work_status["debit"],
                 }
             )
-            if not replyable:
-                update_user_debit(user_id=user_id, debit=work_status["debit"])
+        if not replyable:
+            update_user_debit(user_id=user_id, debit=work_status["debit"])
 
-    # Multi-threading
+    # Using multi-threading for better response time
     for user_data in config.db.user.find():
         threads.append(threading.Thread(target=fetch_user_result, args=(user_data,)))
     for thread in threads:
@@ -149,11 +158,11 @@ def sort_complete_status(user_status: dict) -> List[Tuple[int, List[str]]]:
 
 
 def update_user_debit(user_id: str, debit: int) -> None:
-    """更新使用者負債
+    """Update user's debit
 
     Args:
-        user_id (str): 使用者 LINE ID
-        debit (int): 負債金額
+        user_id (str): User's LINE ID
+        debit (int): Debit amount
     """
     debit += check_last_week(user_id=user_id)
     user_data = config.db.user.find_one({"user_id": user_id})
@@ -162,17 +171,17 @@ def update_user_debit(user_id: str, debit: int) -> None:
 
 
 def check_last_week(user_id: str) -> int:
-    """檢查上週補全進度
+    """Check last week's status
 
     Args:
-        user_id (str): 使用者 LINE ID
+        user_id (str): User's LINE ID
 
     Returns:
-        int: 負債金額
+        int: Debit amount
     """
     debit = 0
     question_data = config.db.questions.find_one({})
-    last_week = question_data["last_week"]
+    last_week = question_data["latest"]["last_week"]
 
     user_data = question_data["history"][last_week]["result"][user_id]["result"]
     # He/She has not complete last week's work
@@ -187,7 +196,7 @@ def check_last_week(user_id: str) -> int:
         work_status = leetcode.info.check_work_status(
             user_id=user_id,
             required_questions=last_week_required_questions,
-            optinoal_questions=last_week_optional_questions,
+            optional_questions=last_week_optional_questions,
             first_week=False,
         )
         debit = work_status["debit"]

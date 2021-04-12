@@ -1,7 +1,6 @@
 import sys
 import threading
 
-import requests
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from linebot.api import LineBotApi
@@ -27,11 +26,10 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
     Returns:
         JSONResponse: LeetCode login result.
     """
-    cookies = {"LEETCODE_SESSION": param.LEETCODE_SESSION, "csrftoken": param.csrftoken}
-    response = requests.get(
-        "https://leetcode.com/api/problems/all/", cookies=cookies
-    ).json()
-    if response["user_name"] != "":
+    is_login, response = info.login(
+        LEETCODE_SESSION=param.LEETCODE_SESSION, csrftoken=param.csrftoken
+    )
+    if is_login:
         user_data = config.db.user.find_one({"user_id": param.user_id})
         if user_data:
             user_data["account"]["LeetCode"][
@@ -43,7 +41,9 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
             message = {"status": "success", "message": "已成功登入帳號！"}
             if not user_data["account"]["LeetCode"]["has_logined"]:
                 # 更新 LeetCode 狀況
-                thread = threading.Thread(target=info.update_status, args=(user_data,))
+                thread = threading.Thread(
+                    target=info.update_leetcode_status, args=(user_data,)
+                )
                 thread.start()
         else:
             message = {"status": "failed", "message": "請先加入 LINE Bot 好友！"}
@@ -110,7 +110,7 @@ async def set_week_question(param: SetQuestion) -> JSONResponse:
                     },
                     "result": {},
                 }
-                question_data["last_week"] = param.last_week
+                question_data["latest"]["last_week"] = param.last_week
                 message_template = flex_template.set_question(
                     required_questions=required_questions,
                     optional_questions=optional_questions,
