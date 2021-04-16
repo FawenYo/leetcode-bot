@@ -21,9 +21,10 @@ def login(LEETCODE_SESSION: str = "", csrftoken: str = "") -> Tuple[bool, dict]:
     cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
     response = requests.get(
         "https://leetcode.com/api/problems/all/", cookies=cookies
-    ).json()
-    is_login = not not response["user_name"]
-    return is_login, response
+    )
+    csrftoken = response.cookies.get_dict()["csrftoken"]
+    is_login = not not response.json()["user_name"]
+    return is_login, response.json(), csrftoken
 
 
 def find_question(question_name: str) -> Tuple[int, str]:
@@ -35,7 +36,7 @@ def find_question(question_name: str) -> Tuple[int, str]:
     Returns:
         Tuple: (question id, question_url)
     """
-    is_login, response = login()
+    is_login, response, csrftoken = login()
 
     for question in response["stat_status_pairs"]:
         question_title = question["stat"]["question__title"]
@@ -61,7 +62,7 @@ def update_leetcode_status(user_data):
 def find_question_status(
     LEETCODE_SESSION: str, csrftoken: str, questions: List[str]
 ) -> List[str]:
-    is_login, response = login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
+    is_login, response, csrftoken = login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
     if not is_login:
         return []
     for question in response["stat_status_pairs"]:
@@ -97,7 +98,7 @@ def current_leetcode_status(LEETCODE_SESSION: str, csrftoken: str) -> Dict[str, 
     """
     leetcode_status = {}
 
-    is_login, response = login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
+    is_login, response, csrftoken = login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
 
     # LeetCode user name
     leetcode_status["user_name"] = response["user_name"]

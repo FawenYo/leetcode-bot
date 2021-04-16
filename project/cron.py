@@ -14,8 +14,27 @@ cron = APIRouter()
 line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 
-@cron.get("/start", response_class=JSONResponse)
-async def cron_start(token: str) -> JSONResponse:
+@cron.get("/update", response_class=JSONResponse)
+async def cron_update(token: str) -> JSONResponse:
+    """Start cron jobs
+
+    Args:
+        token (str): API token
+
+    Returns:
+        JSONResponse: Job status
+    """
+    # Check API token
+    if token == config.TOKEN:
+        daily_update()
+        message = {"stauts": "success", "message": "已完成任務！"}
+    else:
+        message = {"status": "error", "message": "Token錯誤！"}
+    return JSONResponse(content=message)
+
+
+@cron.get("/check", response_class=JSONResponse)
+async def cron_check(token: str) -> JSONResponse:
     """Start cron jobs
 
     Args:
@@ -31,6 +50,26 @@ async def cron_start(token: str) -> JSONResponse:
     else:
         message = {"status": "error", "message": "Token錯誤！"}
     return JSONResponse(content=message)
+
+
+def daily_update() -> None:
+    """Update user's LeetCode csrftoken
+    """
+    threads = []
+    def update_csrftoken(user_data: dict):
+        LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
+        csrftoken = user_data["account"]["LeetCode"]["csrftoken"]
+        is_login, response, new_csrftoken = leetcode.info.login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
+        if is_login:
+            user_data["account"]["LeetCode"]["csrftoken"] = new_csrftoken
+            config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
+    # Using multi-threading for better response time
+    for user_data in config.db.user.find():
+        threads.append(threading.Thread(target=update_csrftoken, args=(user_data,)))
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
 
 
 def week_check(

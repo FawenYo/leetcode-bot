@@ -38,7 +38,6 @@ function initializeApp() {
 
 function Login() {
     LEETCODE_SESSION = document.getElementById("LEETCODE_SESSION").value;
-    csrftoken = document.getElementById("csrftoken").value;
     if (LEETCODE_SESSION == "") {
         Swal.fire({
             icon: "error",
@@ -46,15 +45,8 @@ function Login() {
             text: "LEETCODE_SESSION 欄位不得為空！",
             confirmButtonText: "關閉"
         })
-    } else if (csrftoken == "") {
-        Swal.fire({
-            icon: "error",
-            title: "錯誤",
-            text: "csrftoken 欄位不得為空！",
-            confirmButtonText: "關閉"
-        })
     } else {
-        let data = { LEETCODE_SESSION, csrftoken, user_id }
+        let data = { LEETCODE_SESSION, user_id }
 
         const requestOptions = {
             method: 'POST',
