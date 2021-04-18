@@ -140,12 +140,12 @@ async def get_question(date: str) -> JSONResponse:
     question_data = config.db.questions.find_one({})
 
     if date in question_data["history"]:
-        required_questions = [i.split("__||__")[1] for i in question_data["history"][date]["questions"][
+        required_questions = question_data["history"][date]["questions"][
                 "required"
-            ]]
-        optional_questions = [i.split("__||__")[1] for i in question_data["history"][date]["questions"][
+            ]
+        optional_questions = question_data["history"][date]["questions"][
                 "optional"
-            ]]
+            ]
         message = {"code": 200, "message": "成功取得題目！", "required_questions": required_questions, "optional_questions": optional_questions}
     else:
         message = {"code": 500, "message": "無法取得題目！", "error": {"message": "查無日期題目"}}
