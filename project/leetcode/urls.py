@@ -1,3 +1,4 @@
+import re
 import sys
 import threading
 
@@ -132,3 +133,20 @@ async def set_week_question(param: SetQuestion) -> JSONResponse:
         config.console.print_exception()
         message = {"status": "failed", "message": "發生未知錯誤！"}
     return JSONResponse(content=message)
+
+@leetcode.get("/get_question", response_class=JSONResponse)
+async def get_question(date: str) -> JSONResponse:
+    date = date.replace("-", "/")
+    question_data = config.db.questions.find_one({})
+
+    if date in question_data["history"]:
+        required_questions = [i.split("__||__")[0] for i in question_data["history"][date]["questions"][
+                "required"
+            ]]
+        optional_questions = [i.split("__||__")[0] for i in question_data["history"][date]["questions"][
+                "optional"
+            ]]
+        message = {"code": 200, "message": "成功取得題目！", "required_questions": required_questions, "optional_questions": optional_questions}
+    else:
+        message = {"code": 500, "message": "無法取得題目！", "error": {"message": "查無日期題目"}}
+    return message 
