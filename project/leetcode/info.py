@@ -8,7 +8,7 @@ sys.path.append(".")
 import config
 
 
-def login(LEETCODE_SESSION: str = "", csrftoken: str = "") -> Tuple[bool, dict]:
+def login(LEETCODE_SESSION: str = "", csrftoken: str = "", homepage: bool = False) -> Tuple[bool, dict]:
     """Fetch user's LeetCode data
 
     Args:
@@ -18,10 +18,12 @@ def login(LEETCODE_SESSION: str = "", csrftoken: str = "") -> Tuple[bool, dict]:
     Returns:
         Tuple[bool, dict]: [description]
     """
+    if homepage:
+        url = "https://leetcode.com/"
+    else:
+        url = "https://leetcode.com/api/problems/all/"
     cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
-    response = requests.get(
-        "https://leetcode.com/api/problems/all/", cookies=cookies
-    )
+    response = requests.get(url=url, cookies=cookies)
     csrftoken = response.cookies.get_dict()["csrftoken"]
     is_login = not not response.json()["user_name"]
     return is_login, response.json(), csrftoken

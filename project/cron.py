@@ -59,7 +59,7 @@ def daily_update() -> None:
     def update_csrftoken(user_data: dict):
         LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
         csrftoken = user_data["account"]["LeetCode"]["csrftoken"]
-        is_login, response, new_csrftoken = leetcode.info.login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
+        is_login, response, new_csrftoken = leetcode.info.login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken, homepage=True)
         if is_login:
             user_data["account"]["LeetCode"]["csrftoken"] = new_csrftoken
             config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
