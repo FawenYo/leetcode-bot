@@ -8,15 +8,12 @@ sys.path.append(".")
 import config
 
 
-def login(LEETCODE_SESSION: str = "", csrftoken: str = "", homepage: bool = False) -> Tuple[bool, dict]:
+def login(LEETCODE_SESSION: str = "", csrftoken: str = "", homepage: bool = False):
     """Fetch user's LeetCode data
 
     Args:
         LEETCODE_SESSION (str, optional): LEETCODE_SESSION. Defaults to "".
         csrftoken (str, optional): csrftoken. Defaults to "".
-
-    Returns:
-        Tuple[bool, dict]: [description]
     """
     if homepage:
         url = "https://leetcode.com/"
@@ -25,6 +22,8 @@ def login(LEETCODE_SESSION: str = "", csrftoken: str = "", homepage: bool = Fals
     cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
     response = requests.get(url=url, cookies=cookies)
     csrftoken = response.cookies.get_dict()["csrftoken"]
+    if homepage:
+        return True, {}, csrftoken
     is_login = not not response.json()["user_name"]
     return is_login, response.json(), csrftoken
 
@@ -64,7 +63,9 @@ def update_leetcode_status(user_data):
 def find_question_status(
     LEETCODE_SESSION: str, csrftoken: str, questions: List[str]
 ) -> List[str]:
-    is_login, response, csrftoken = login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
+    is_login, response, csrftoken = login(
+        LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken
+    )
     if not is_login:
         return []
     for question in response["stat_status_pairs"]:
@@ -100,7 +101,9 @@ def current_leetcode_status(LEETCODE_SESSION: str, csrftoken: str) -> Dict[str, 
     """
     leetcode_status = {}
 
-    is_login, response, csrftoken = login(LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken)
+    is_login, response, csrftoken = login(
+        LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken
+    )
 
     # LeetCode user name
     leetcode_status["user_name"] = response["user_name"]

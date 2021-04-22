@@ -1,7 +1,7 @@
 import os
 
 import uvicorn
-from fastapi import FastAPI, Cookie
+from fastapi import Cookie, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates

@@ -27,9 +27,7 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
     Returns:
         JSONResponse: LeetCode login result.
     """
-    is_login, response, csrftoken = info.login(
-        LEETCODE_SESSION=param.LEETCODE_SESSION
-    )
+    is_login, response, csrftoken = info.login(LEETCODE_SESSION=param.LEETCODE_SESSION)
     if is_login:
         user_data = config.db.user.find_one({"user_id": param.user_id})
         if user_data:
@@ -134,19 +132,21 @@ async def set_week_question(param: SetQuestion) -> JSONResponse:
         message = {"status": "failed", "message": "發生未知錯誤！"}
     return JSONResponse(content=message)
 
+
 @leetcode.get("/get_question", response_class=JSONResponse)
 async def get_question(date: str) -> JSONResponse:
     date = date.replace("-", "/")
     question_data = config.db.questions.find_one({})
 
     if date in question_data["history"]:
-        required_questions = question_data["history"][date]["questions"][
-                "required"
-            ]
-        optional_questions = question_data["history"][date]["questions"][
-                "optional"
-            ]
-        message = {"code": 200, "message": "成功取得題目！", "required_questions": required_questions, "optional_questions": optional_questions}
+        required_questions = question_data["history"][date]["questions"]["required"]
+        optional_questions = question_data["history"][date]["questions"]["optional"]
+        message = {
+            "code": 200,
+            "message": "成功取得題目！",
+            "required_questions": required_questions,
+            "optional_questions": optional_questions,
+        }
     else:
         message = {"code": 500, "message": "無法取得題目！", "error": {"message": "查無日期題目"}}
-    return message 
+    return message
