@@ -31,6 +31,7 @@ def handle_follow(event):
         "add_time": now,
         "account": {"LeetCode": {"LEETCODE_SESSION": "", "has_logined": False}},
         "LeetCode": {},
+        "check": True
     }
     config.db.user.insert_one(data)
 
