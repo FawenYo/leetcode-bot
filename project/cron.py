@@ -16,7 +16,7 @@ line_bot_api = LineBotApi(config.LINE_CHANNEL_ACCESS_TOKEN)
 
 @cron.get("/update", response_class=JSONResponse)
 async def cron_update(token: str) -> JSONResponse:
-    """Start cron jobs
+    """Start cron jobs - update
 
     Args:
         token (str): API token
@@ -35,7 +35,7 @@ async def cron_update(token: str) -> JSONResponse:
 
 @cron.get("/check", response_class=JSONResponse)
 async def cron_check(token: str) -> JSONResponse:
-    """Start cron jobs
+    """Start cron jobs - check
 
     Args:
         token (str): API token
@@ -53,22 +53,28 @@ async def cron_check(token: str) -> JSONResponse:
 
 
 def daily_update() -> None:
-    """Update user's LeetCode csrftoken"""
+    """Update user's LEETCODE_SESSION"""
     threads = []
 
-    def update_csrftoken(user_data: dict):
+    def update_leetcode_session(user_data: dict):
         LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
-        csrftoken = user_data["account"]["LeetCode"]["csrftoken"]
-        is_login, response, new_csrftoken = leetcode.info.login(
-            LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken, homepage=True
+        is_login, response, new_leetcode_session = leetcode.info.login(
+            LEETCODE_SESSION=LEETCODE_SESSION
         )
         if is_login:
-            user_data["account"]["LeetCode"]["csrftoken"] = new_csrftoken
-            config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
+            if new_leetcode_session:
+                user_data["account"]["LeetCode"][
+                    "LEETCODE_SESSION"
+                ] = new_leetcode_session
+                config.db.user.update_one(
+                    {"_id": user_data["_id"]}, {"$set": user_data}
+                )
 
     # Using multi-threading for better response time
     for user_data in config.db.user.find():
-        threads.append(threading.Thread(target=update_csrftoken, args=(user_data,)))
+        threads.append(
+            threading.Thread(target=update_leetcode_session, args=(user_data,))
+        )
     for thread in threads:
         thread.start()
     for thread in threads:

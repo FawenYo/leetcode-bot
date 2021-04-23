@@ -8,24 +8,22 @@ sys.path.append(".")
 import config
 
 
-def login(LEETCODE_SESSION: str = "", csrftoken: str = "", homepage: bool = False):
+def login(LEETCODE_SESSION: str = ""):
     """Fetch user's LeetCode data
 
     Args:
         LEETCODE_SESSION (str, optional): LEETCODE_SESSION. Defaults to "".
-        csrftoken (str, optional): csrftoken. Defaults to "".
     """
-    if homepage:
-        url = "https://leetcode.com/"
-    else:
-        url = "https://leetcode.com/api/problems/all/"
-    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION, "csrftoken": csrftoken}
+    url = "https://leetcode.com/api/problems/all/"
+    cookies = {"LEETCODE_SESSION": LEETCODE_SESSION}
     response = requests.get(url=url, cookies=cookies)
-    csrftoken = response.cookies.get_dict()["csrftoken"]
-    if homepage:
-        return True, {}, csrftoken
+    response_cookies = response.cookies.get_dict()
+    if "LEETCODE_SESSION" in response_cookies:
+        LEETCODE_SESSION = response_cookies["LEETCODE_SESSION"]
+    else:
+        LEETCODE_SESSION = ""
     is_login = not not response.json()["user_name"]
-    return is_login, response.json(), csrftoken
+    return is_login, response.json(), LEETCODE_SESSION
 
 
 def find_question(question_name: str) -> Tuple[int, str]:
@@ -37,7 +35,7 @@ def find_question(question_name: str) -> Tuple[int, str]:
     Returns:
         Tuple: (question id, question_url)
     """
-    is_login, response, csrftoken = login()
+    is_login, response, leetcode_session = login()
 
     for question in response["stat_status_pairs"]:
         question_title = question["stat"]["question__title"]
@@ -52,20 +50,13 @@ def find_question(question_name: str) -> Tuple[int, str]:
 def update_leetcode_status(user_data):
     """Update user's LeetCode status"""
     LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
-    csrftoken = user_data["account"]["LeetCode"]["csrftoken"]
-    latest_status = current_leetcode_status(
-        LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken
-    )
+    latest_status = current_leetcode_status(LEETCODE_SESSION=LEETCODE_SESSION)
     user_data["LeetCode"] = latest_status
     config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
 
 
-def find_question_status(
-    LEETCODE_SESSION: str, csrftoken: str, questions: List[str]
-) -> List[str]:
-    is_login, response, csrftoken = login(
-        LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken
-    )
+def find_question_status(LEETCODE_SESSION: str, questions: List[str]) -> List[str]:
+    is_login, response, leetcode_session = login(LEETCODE_SESSION=LEETCODE_SESSION)
     if not is_login:
         return []
     for question in response["stat_status_pairs"]:
@@ -89,21 +80,18 @@ def find_question_status(
     return questions
 
 
-def current_leetcode_status(LEETCODE_SESSION: str, csrftoken: str) -> Dict[str, bool]:
+def current_leetcode_status(LEETCODE_SESSION: str) -> Dict[str, bool]:
     """Fetch current LeetCode question status
 
     Args:
         LEETCODE_SESSION (str): User's LeetCode session.
-        csrftoken (str): User's LeetCode csrf_token.
 
     Returns:
         Dict[str, bool]: User's LeetCode question status.
     """
     leetcode_status = {}
 
-    is_login, response, csrftoken = login(
-        LEETCODE_SESSION=LEETCODE_SESSION, csrftoken=csrftoken
-    )
+    is_login, response, leetcode_session = login(LEETCODE_SESSION=LEETCODE_SESSION)
 
     # LeetCode user name
     leetcode_status["user_name"] = response["user_name"]
@@ -144,7 +132,6 @@ def check_work_status(
     old_status = user_data["LeetCode"]
     latest_status = current_leetcode_status(
         LEETCODE_SESSION=user_data["account"]["LeetCode"]["LEETCODE_SESSION"],
-        csrftoken=user_data["account"]["LeetCode"]["csrftoken"],
     )
     user_name = latest_status["user_name"]
     # shallow copy to prevent affect others

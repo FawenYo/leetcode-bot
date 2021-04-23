@@ -27,14 +27,15 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
     Returns:
         JSONResponse: LeetCode login result.
     """
-    is_login, response, csrftoken = info.login(LEETCODE_SESSION=param.LEETCODE_SESSION)
+    is_login, response, leetcode_session = info.login(
+        LEETCODE_SESSION=param.LEETCODE_SESSION
+    )
     if is_login:
         user_data = config.db.user.find_one({"user_id": param.user_id})
         if user_data:
             user_data["account"]["LeetCode"][
                 "LEETCODE_SESSION"
             ] = param.LEETCODE_SESSION
-            user_data["account"]["LeetCode"]["csrftoken"] = csrftoken
             user_data["account"]["LeetCode"]["has_logined"] = True
             config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
             message = {"status": "success", "message": "已成功登入帳號！"}
