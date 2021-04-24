@@ -171,7 +171,9 @@ def fetch_all_leetcode(
     # Using multi-threading for better response time
     for user_data in config.db.user.find():
         if user_data["check"]:
-            threads.append(threading.Thread(target=fetch_user_result, args=(user_data,)))
+            threads.append(
+                threading.Thread(target=fetch_user_result, args=(user_data,))
+            )
     for thread in threads:
         thread.start()
     for thread in threads:

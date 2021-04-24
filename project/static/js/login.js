@@ -1,10 +1,17 @@
 let user_id = "";
+let current_date = new Date();
 
 window.onload = () => {
     if (!localStorage["user_id"]) {
         initializeLiff("1655767329-J571PLN4");
     } else {
-        user_id = localStorage["user_id"];
+        expire_date = localStorage["expire_date"];
+        if (expire_date && new Date(expire_date) > current_date) {
+            user_id = localStorage["user_id"];
+        }
+        else {
+            initializeLiff("1655767329-J571PLN4");
+        }
     }
 }
 
@@ -29,6 +36,9 @@ function initializeApp() {
             .then((profile) => {
                 user_id = profile.userId;
                 localStorage["user_id"] = user_id;
+                expire_date = new Date();
+                expire_date.setDate(expire_date.getDate() + 3);
+                localStorage["expire_date"] = expire_date;
             })
             .catch((err) => {
                 console.log(err);
