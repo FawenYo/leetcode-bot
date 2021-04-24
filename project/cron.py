@@ -169,11 +169,8 @@ def fetch_all_leetcode(
             update_user_debit(user_id=user_id, debit=work_status["debit"])
 
     # Using multi-threading for better response time
-    for user_data in config.db.user.find():
-        if user_data["check"]:
-            threads.append(
-                threading.Thread(target=fetch_user_result, args=(user_data,))
-            )
+    for user_data in config.db.user.find({"check": True}):
+        threads.append(threading.Thread(target=fetch_user_result, args=(user_data,)))
     for thread in threads:
         thread.start()
     for thread in threads:

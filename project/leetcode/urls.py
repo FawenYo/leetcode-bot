@@ -33,18 +33,18 @@ async def get_leetcode_status(param: GetLeetCodeStatus) -> JSONResponse:
     if is_login:
         user_data = config.db.user.find_one({"user_id": param.user_id})
         if user_data:
-            user_data["account"]["LeetCode"][
-                "LEETCODE_SESSION"
-            ] = param.LEETCODE_SESSION
-            user_data["account"]["LeetCode"]["has_logined"] = True
-            config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
-            message = {"status": "success", "message": "已成功登入帳號！"}
             if not user_data["account"]["LeetCode"]["has_logined"]:
                 # 更新 LeetCode 狀況
                 thread = threading.Thread(
                     target=info.update_leetcode_status, args=(user_data,)
                 )
                 thread.start()
+            user_data["account"]["LeetCode"][
+                "LEETCODE_SESSION"
+            ] = param.LEETCODE_SESSION
+            user_data["account"]["LeetCode"]["has_logined"] = True
+            config.db.user.update_one({"_id": user_data["_id"]}, {"$set": user_data})
+            message = {"status": "success", "message": "已成功登入帳號！"}
         else:
             message = {"status": "failed", "message": "請先加入 LINE Bot 好友！"}
     else:
