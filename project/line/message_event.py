@@ -30,6 +30,15 @@ def handle_message(event):
         try:
             if user_message == "帳號操作":
                 user_data = config.db.user.find_one({"user_id": user_id})
+                LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
+                is_login, response, leetcode_session = info.login(
+                    LEETCODE_SESSION=LEETCODE_SESSION
+                )
+                if not is_login:
+                    user_data["account"]["LeetCode"]["LEETCODE_SESSION"] = ""
+                    config.db.user.update_one(
+                        {"_id": user_data["_id"]}, {"$set": user_data}
+                    )
                 debit = user_data["debit"]
                 messages = flex_template.info(user_id=user_id, debit=debit)
             elif user_message == "登入":
