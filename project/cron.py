@@ -113,17 +113,17 @@ def week_check(
 
 def fetch_all_leetcode(
     replyable: bool = False,
-    current_date: str = datetime.strftime(datetime.now(), "%Y/%m/%d"),
 ) -> Tuple[dict, list]:
     """Fetch All Users' LeetCode status
 
     Args:
         replyable (bool, optional): If the message can use reply. Defaults to False.
-        current_date (str, optional): Check date. Defaults to today.
 
     Returns:
         Tuple[dict, list]: (user_status, undo_users)
     """
+
+    current_date: str = datetime.strftime(datetime.now(), "%Y/%m/%d")
     user_status = {}
     undo_users = []
     unbound_users = []
