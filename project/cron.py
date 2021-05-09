@@ -26,7 +26,8 @@ async def cron_update(token: str) -> JSONResponse:
     """
     # Check API token
     if token == config.TOKEN:
-        daily_update()
+        thread = threading.Thread(target=daily_update)
+        thread.start()
         message = {"stauts": "success", "message": "已完成任務！"}
     else:
         message = {"status": "error", "message": "Token錯誤！"}
@@ -45,7 +46,8 @@ async def cron_check(token: str) -> JSONResponse:
     """
     # Check API token
     if token == config.TOKEN:
-        week_check()
+        thread = threading.Thread(target=week_check)
+        thread.start()
         message = {"stauts": "success", "message": "已完成任務！"}
     else:
         message = {"status": "error", "message": "Token錯誤！"}
