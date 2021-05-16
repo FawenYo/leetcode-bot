@@ -54,13 +54,14 @@ def handle_message(event):
                 LEETCODE_SESSION = user_data["account"]["LeetCode"]["LEETCODE_SESSION"]
                 if LEETCODE_SESSION != "":
                     question_data = config.db.questions.find_one({})
+                    question_date = question_data["latest"]["check_date"]
                     required_questions = info.find_question_status(
                         LEETCODE_SESSION=LEETCODE_SESSION,
-                        questions=question_data["latest"]["required"],
+                        questions=question_data["history"][question_date]["required"],
                     )
                     optional_questions = info.find_question_status(
                         LEETCODE_SESSION=LEETCODE_SESSION,
-                        questions=question_data["latest"]["optional"],
+                        questions=question_data["history"][question_date]["optional"],
                     )
                     if not required_questions or not optional_questions:
                         user_data["account"]["LeetCode"]["LEETCODE_SESSION"] = ""
