@@ -57,11 +57,11 @@ def handle_message(event):
                     question_date = question_data["latest"]["check_date"]
                     required_questions = info.find_question_status(
                         LEETCODE_SESSION=LEETCODE_SESSION,
-                        questions=question_data["history"][question_date]["required"],
+                        questions=question_data["history"][question_date]["questions"]["required"],
                     )
                     optional_questions = info.find_question_status(
                         LEETCODE_SESSION=LEETCODE_SESSION,
-                        questions=question_data["history"][question_date]["optional"],
+                        questions=question_data["history"][question_date]["questions"]["optional"],
                     )
                     if not required_questions or not optional_questions:
                         user_data["account"]["LeetCode"]["LEETCODE_SESSION"] = ""
